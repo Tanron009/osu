@@ -9,6 +9,7 @@ using osu.Framework.Input.Events;
 using System.Linq;
 using osu.Game.Screens.Select.Stable;
 using osu.Game.Skinning;
+using osu.Framework.Utils;
 using osuTK;
 
 namespace osu.Game.Screens.Menu
@@ -62,6 +63,31 @@ namespace osu.Game.Screens.Menu
                     EdgeX = rightEdges[i] / 1920f,
                 });
             }
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            // measured in stable: the logo (and buttons) follow the cursor by roughly 3.5% of its distance from the screen centre
+            bool active = buttons.State == ButtonSystemState.TopLevel || buttons.State == ButtonSystemState.Play || buttons.State == ButtonSystemState.Initial;
+            var input = GetContainingInputManager();
+            var target = Vector2.Zero;
+
+            if (active && input != null)
+            {
+                var centre = ToScreenSpace(DrawSize / 2f);
+                target = (input.CurrentState.Mouse.Position - centre) * 0.035f;
+            }
+
+            StableUi.MenuParallax = (Vector2)Interpolation.DampContinuously(StableUi.MenuParallax, target, 80, Time.Elapsed);
+            space.Position = StableUi.MenuParallax / StableUi.PxPerUnit;
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            StableUi.MenuParallax = Vector2.Zero;
+            base.Dispose(isDisposing);
         }
 
         protected override void LoadComplete()

@@ -367,9 +367,25 @@ namespace osu.Game.Screens.Menu
         [Resolved]
         private MusicController musicController { get; set; }
 
+        private Vector2 appliedParallax;
+
         protected override void Update()
         {
             base.Update();
+
+            if (Screens.Select.Stable.StableUi.Enabled)
+            {
+                // main menu parallax; a running MoveTo already overwrote Position this frame, so only subtract what is actually still in it
+                bool moving = LatestTransformEndTime > Time.Current;
+                var target = Screens.Select.Stable.StableUi.MenuParallax / Screens.Select.Stable.StableUi.PxPerUnit;
+                var basePos = moving ? Position : Position - appliedParallax;
+
+                if (moving || target != appliedParallax)
+                {
+                    Position = basePos + target;
+                    appliedParallax = target;
+                }
+            }
 
             // the skinned song select art already contains a logo spot; keep the real one (almost) invisible but clickable
             logoBounceContainer.Alpha = Screens.Select.Stable.StableUi.HideLogo ? 0.001f : 1;

@@ -16,6 +16,9 @@ namespace osu.Game.Screens.Select.Stable
     {
         public static bool Enabled { get; set; }
 
+        /// <summary>Current main menu parallax offset (screen pixels at 1080p): the logo and buttons drift towards the cursor.</summary>
+        public static Vector2 MenuParallax { get; set; }
+
         /// <summary>Whether stable's Aller font was found and registered.</summary>
         public static bool FontsLoaded { get; set; }
 
