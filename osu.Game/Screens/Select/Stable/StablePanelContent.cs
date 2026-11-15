@@ -14,6 +14,7 @@ using osu.Framework.Localisation;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
 using osu.Game.Graphics;
+using osu.Game.Skinning;
 using osu.Game.Graphics.Sprites;
 using osuTK;
 using osuTK.Graphics;
@@ -30,6 +31,7 @@ namespace osu.Game.Screens.Select.Stable
         private const int star_slots = 10;
 
         private Box body = null!;
+        private StableSkinSprite bodyArt = null!;
         private Container thumbnailContainer = null!;
         private UpdateableBeatmapBackgroundSprite thumbnail = null!;
         private TruncatingSpriteText titleText = null!;
@@ -69,6 +71,12 @@ namespace osu.Game.Screens.Select.Stable
                 {
                     RelativeSizeAxes = Axes.Both,
                     Colour = StableUi.SET_PANEL_COLOUR,
+                },
+                // stable tints menu-button-background (skinnable) to colour its panels
+                bodyArt = new StableSkinSprite(@"menu-button-background")
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    FillMode = FillMode.Stretch,
                 },
                 thumbnailContainer = new Container
                 {
@@ -135,6 +143,9 @@ namespace osu.Game.Screens.Select.Stable
             applyKindLayout();
             applyColours();
         }
+
+        // selected panels are tinted light grey; dark text only makes sense on stable's own (light) art, skins usually draw dark panels
+        private bool highlightDark => highlighted && !bodyArt.FromSkin;
 
         public void SetHighlighted(bool value)
         {
@@ -236,8 +247,10 @@ namespace osu.Game.Screens.Select.Stable
             }
 
             body.Colour = bodyColour;
+            bodyArt.Colour = bodyColour;
+            body.Alpha = bodyArt.Active.Value ? 0 : 1;
 
-            bool darkText = highlighted && kind != PanelKind.Group;
+            bool darkText = highlightDark && kind != PanelKind.Group;
             Color4 text = darkText ? Color4.Black : Color4.White;
 
             // for difficulty rows, stable fades the set title/artist into the background to emphasise the difficulty name
@@ -263,7 +276,7 @@ namespace osu.Game.Screens.Select.Stable
             if (kind != PanelKind.Difficulty)
                 return;
 
-            Color4 colour = highlighted ? Color4.Black : Color4.White;
+            Color4 colour = highlightDark ? Color4.Black : Color4.White;
             int whole = (int)Math.Floor(stars);
             double fraction = stars - whole;
 
@@ -294,7 +307,7 @@ namespace osu.Game.Screens.Select.Stable
                         Origin = Anchor.CentreLeft,
                         Icon = FontAwesome.Solid.Star,
                         Size = new Vector2(26 * scale),
-                        Colour = i < whole || (i == whole && fraction > 0.05) ? colour : (highlighted ? Color4.Black : DifficultyColourDim).Opacity(alpha),
+                        Colour = i < whole || (i == whole && fraction > 0.05) ? colour : (highlightDark ? Color4.Black : DifficultyColourDim).Opacity(alpha),
                     }
                 });
             }

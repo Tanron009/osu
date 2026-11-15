@@ -19,6 +19,11 @@ namespace osu.Game.Skinning
         /// </summary>
         public readonly BindableBool Active = new BindableBool();
 
+        /// <summary>
+        /// Whether the displayed texture comes from the active skin (as opposed to the stable defaults).
+        /// </summary>
+        public bool FromSkin { get; private set; }
+
         private readonly string textureName;
         private readonly Bindable<bool> useStableUI = new Bindable<bool>();
 
@@ -53,7 +58,9 @@ namespace osu.Game.Skinning
 
         private void refresh()
         {
-            var texture = useStableUI.Value ? skin.GetTexture(textureName) ?? stableAssets.Get(textureName) : null;
+            var skinTexture = useStableUI.Value ? skin.GetTexture(textureName) : null;
+            var texture = skinTexture ?? (useStableUI.Value ? stableAssets.Get(textureName) : null);
+            FromSkin = skinTexture != null;
 
             Texture = texture;
             Active.Value = texture != null;

@@ -31,6 +31,7 @@ using osuTK;
 using osuTK.Graphics;
 using osuTK.Input;
 
+using osu.Game.Screens.Select.Stable;
 namespace osu.Game.Screens.Menu
 {
     public partial class ButtonSystem : Container, IStateful<ButtonSystemState>, IKeyBindingHandler<GlobalAction>
@@ -480,6 +481,19 @@ namespace osu.Game.Screens.Menu
 
                 case ButtonSystemState.TopLevel:
                 case ButtonSystemState.Play:
+                    if (StableUi.Enabled)
+                    {
+                        // osu!stable: the (big) logo slides to the left of the screen and the buttons come out from behind it
+                        logoTracking?.Dispose();
+                        logoTracking = null;
+                        logoDelayedAction?.Cancel();
+
+                        logo.ClearTransforms(targetMember: nameof(Position));
+                        logo.MoveTo(new Vector2(StableUi.MENU_LOGO_X, 0.5f), 450, Easing.OutQuint);
+                        logo.ScaleTo(StableUi.MENU_LOGO_SCALE, 450, Easing.OutQuint);
+                        break;
+                    }
+
                     switch (lastState)
                     {
                         case ButtonSystemState.TopLevel: // coming from toplevel to play

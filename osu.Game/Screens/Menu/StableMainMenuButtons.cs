@@ -46,10 +46,11 @@ namespace osu.Game.Screens.Menu
             {
                 Add(new StableButton(names[i], actions[i])
                 {
-                    Anchor = Anchor.CentreRight,
+                    Anchor = Anchor.CentreLeft,
                     Origin = Anchor.CentreRight,
-                    X = 0,
-                    Y = (i - 1.5f) * 100,
+                    RelativePositionAxes = Axes.X,
+                    X = 1548f / 1920f,
+                    Y = (i - 1.5f) * 146 + 4,
                 });
             }
         }
@@ -78,7 +79,8 @@ namespace osu.Game.Screens.Menu
             [Resolved]
             private ISkinSource skin { get; set; } = null!;
 
-            private const float offscreen_x = 900;
+            // stable slides the buttons out from behind the logo
+            private const float offscreen_x = -420;
 
             public StableButton(string name, Action? action)
             {
@@ -90,8 +92,8 @@ namespace osu.Game.Screens.Menu
             private void load()
             {
                 AutoSizeAxes = Axes.Both;
-                Scale = new Vector2(StableUi.SCALE * 0.5f);
-                X = offscreen_x;
+                Scale = new Vector2(StableUi.SCALE);
+                Alpha = 0;
 
                 AddRange(new Drawable[]
                 {
@@ -108,7 +110,11 @@ namespace osu.Game.Screens.Menu
             public void SlideTo(bool show, int index)
             {
                 shown = show;
-                this.Delay(index * 60).MoveToX(show ? 0 : offscreen_x, show ? 400 : 250, show ? Easing.OutQuint : Easing.InQuint);
+
+                if (show)
+                    this.MoveToX(1548f / 1920f - 420f / 1920f).Delay(index * 60).FadeIn(100).MoveToX(1548f / 1920f, 400, Easing.OutQuint);
+                else
+                    this.MoveToX(1548f / 1920f - 420f / 1920f, 250, Easing.InQuint).FadeOut(250);
             }
 
             protected override bool OnHover(HoverEvent e)
@@ -117,7 +123,7 @@ namespace osu.Game.Screens.Menu
                     return false;
 
                 // stable pulls the hovered button towards the middle of the screen
-                this.MoveToX(-30, 150, Easing.OutQuint);
+                this.MoveToX(1548f / 1920f + 30f / 1920f, 150, Easing.OutQuint);
                 over.FadeTo(1, 100);
                 normal.FadeTo(0, 100);
 
@@ -130,7 +136,7 @@ namespace osu.Game.Screens.Menu
             protected override void OnHoverLost(HoverLostEvent e)
             {
                 if (shown)
-                    this.MoveToX(0, 250, Easing.OutQuint);
+                    this.MoveToX(1548f / 1920f, 250, Easing.OutQuint);
 
                 over.FadeTo(0, 100);
                 normal.FadeTo(1, 100);
