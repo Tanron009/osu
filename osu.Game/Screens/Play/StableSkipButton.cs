@@ -3,7 +3,7 @@
 
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.Containers;
 using osu.Game.Screens.Select.Stable;
 using osu.Game.Skinning;
 using osuTK;
