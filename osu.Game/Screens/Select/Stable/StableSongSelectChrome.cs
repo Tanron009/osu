@@ -299,7 +299,7 @@ namespace osu.Game.Screens.Select.Stable
             lengthText.Text = $"Length: {(int)length.TotalMinutes:00}:{length.Seconds:00} BPM: {Math.Round(info.BPM)} Objects: {working.Value.Beatmap.HitObjects.Count}";
 
             var stats = working.Value.Beatmap.GetStatistics().ToList();
-            string find(string key) => stats.FirstOrDefault(s => s.Name.GetLocalised(LocalisationParameters.DEFAULT).Contains(key, StringComparison.OrdinalIgnoreCase))?.Content.ToString() ?? "-";
+            string find(string key) => stats.FirstOrDefault(s => s.Name.ToString().Contains(key, StringComparison.OrdinalIgnoreCase))?.Content.ToString() ?? "-";
             countText.Text = $"Circles: {find("circle")} Sliders: {find("slider")} Spinners: {find("spinner")}";
 
             var d = info.Difficulty;
