@@ -249,7 +249,7 @@ namespace osu.Game.Screens.Select.Stable
             StableUi.HideLogo = big;
 
             // the skin art already draws the group tabs
-            tabsRoot.Alpha = big ? 0 : 1;
+            tabsRoot.Alpha = big || headerArt.FromSkin ? 0 : 1;
         }
 
         protected override void Dispose(bool isDisposing)
@@ -301,6 +301,7 @@ namespace osu.Game.Screens.Select.Stable
                 ((StableSpace)InternalChild).Add(modeArt);
 
             modeArt.Active.BindValueChanged(_ => updateModeArt(), true);
+            headerArt.Active.BindValueChanged(_ => updateModeArt());
 
             // skins that ship their own songselect-top art usually bake the Group/Sort labels (and tabs) into it
             if (headerArt.FromSkin)
