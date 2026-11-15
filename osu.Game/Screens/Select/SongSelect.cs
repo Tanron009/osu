@@ -49,6 +49,7 @@ using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
 using osu.Game.Screens.Footer;
+using osu.Game.Screens.Select.Stable;
 using osu.Game.Screens.Menu;
 using osu.Game.Screens.Play;
 using osu.Game.Screens.Ranking;
@@ -332,6 +333,25 @@ namespace osu.Game.Screens.Select
             });
 
             showConvertedBeatmaps = config.GetBindable<bool>(OsuSetting.ShowConvertedBeatmaps);
+
+            if (StableUi.Enabled)
+                setupStableLayout();
+        }
+
+        /// <summary>
+        /// osu!stable UI: keep lazer's song select logic alive but replace its visuals with the stable layout.
+        /// </summary>
+        private void setupStableLayout()
+        {
+            // The lazer leaderboard wedge competes with the stable leaderboard for the shared leaderboard manager; never load it.
+            wedgesContainer.Remove(wedgesContainer.Children.Last(), false);
+
+            // The remaining wedge and the filter control are still used for state/logic (search box focus, criteria), so keep them alive but off screen.
+            wedgesContainer.X = -4000;
+            FilterControl.Y = -4000;
+            rightGradientBackground.Alpha = 0;
+
+            AddInternal(new StableSongSelectChrome(FilterControl));
         }
 
         // Colour scheme for mod overlay is left as default (green) to match mods button.
@@ -420,7 +440,7 @@ namespace osu.Game.Screens.Select
             {
                 new Dimension(GridSizeMode.Relative, 0.5f, maxSize: 700 + widescreenBonusWidth * 100),
                 new Dimension(),
-                new Dimension(GridSizeMode.Relative, 0.5f, minSize: 500, maxSize: 700 + widescreenBonusWidth * 300),
+                new Dimension(GridSizeMode.Relative, 0.5f, minSize: 500, maxSize: StableUi.Enabled ? 940 : 700 + widescreenBonusWidth * 300),
             };
 
             if (this.IsCurrentScreen())
