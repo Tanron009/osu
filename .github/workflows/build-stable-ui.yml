@@ -30,3 +30,25 @@ jobs:
         with:
           name: osu-stable-ui-${{ matrix.rid }}
           path: publish/osu-stable-ui-${{ matrix.rid }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Zip builds
+        run: |
+          cd artifacts
+          for d in */; do (cd "$d" && zip -qr "../${d%/}.zip" .); done
+          ls -lh *.zip
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: stable-ui build ${{ github.run_number }}
+          files: artifacts/*.zip
