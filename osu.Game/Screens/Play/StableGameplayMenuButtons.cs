@@ -76,7 +76,7 @@ namespace osu.Game.Screens.Play
                     RelativeSizeAxes = Axes.Both,
                     FillMode = FillMode.Stretch,
                 },
-                flow,
+                new StableSpace { Child = flow },
             });
         }
 

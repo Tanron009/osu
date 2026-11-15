@@ -235,7 +235,7 @@ namespace osu.Game.Screens.Footer
                         art.FillMode = FillMode.Stretch;
                         art.Anchor = Anchor.TopLeft;
                         art.Origin = Anchor.TopLeft;
-                        art.Scale = new Vector2(StableUi.SCALE);
+                        art.Scale = new Vector2(StableUi.DesignScale);
                     }
                 }
 
@@ -335,7 +335,7 @@ namespace osu.Game.Screens.Footer
                 if (legacyArtOver.Texture != null)
                     legacyArtOver.Size = new Vector2(legacyArtOver.Texture.DisplayWidth, legacyArtOver.Texture.DisplayHeight);
 
-                Size = hitSize * StableUi.SCALE;
+                Size = hitSize * StableUi.DesignScale;
             }
 
             bool showOver = active && IsHovered && Enabled.Value && legacyArtOver.Active.Value;

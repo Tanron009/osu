@@ -22,7 +22,7 @@ namespace osu.Game.Screens.Select.Stable
         /// <summary>stable's main menu: logo position (fraction of screen width) and scale while the buttons are showing.</summary>
         public const float MENU_LOGO_X = 695f / 1920f;
 
-        public const float MENU_LOGO_SCALE = 1.24f;
+        public const float MENU_LOGO_SCALE = 1.28f;
 
         /// <summary>stable skin sample names used for general menu navigation (hover / click).</summary>
         public const string HoverSampleName = @"click-short";
@@ -57,10 +57,19 @@ namespace osu.Game.Screens.Select.Stable
         /// <summary>
         /// Height of a beatmap (set) panel at 1080p, matching stable.
         /// </summary>
-        public const float PANEL_HEIGHT = 122f;
+        public static float PANEL_HEIGHT => 132f / PxPerUnit;
 
-        public const float GROUP_PANEL_HEIGHT = 64f;
+        public static float GROUP_PANEL_HEIGHT => 60f / PxPerUnit;
 
-        public const float FOOTER_HEIGHT = 110f;
+        /// <summary>Footer height in lazer layout units; <see cref="FOOTER_PX"/> is the same in screen pixels.</summary>
+        public static float FOOTER_HEIGHT => FOOTER_PX / PxPerUnit;
+
+        public const float FOOTER_PX = 114f;
+
+        /// <summary>Screen pixels per lazer layout unit (the UI scale), measured by <see cref="StableSpace"/>.</summary>
+        public static float PxPerUnit { get; set; } = 1.32f;
+
+        /// <summary>Scale to draw stable art (native pixels) at the size stable would, in lazer layout units.</summary>
+        public static float DesignScale => SCALE / PxPerUnit;
     }
 }

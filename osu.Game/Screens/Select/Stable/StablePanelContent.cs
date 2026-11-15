@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Linq;
 using System.Threading;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -132,6 +133,11 @@ namespace osu.Game.Screens.Select.Stable
                     Alpha = 0,
                 },
             };
+
+            // stable layout numbers are screen pixels
+            var content = InternalChildren.ToArray();
+            ClearInternal(false);
+            AddInternal(new StableSpace { Children = content });
 
             applyKindLayout();
             applyColours();

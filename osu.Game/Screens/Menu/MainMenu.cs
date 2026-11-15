@@ -405,7 +405,8 @@ namespace osu.Game.Screens.Menu
             musicController.EnsurePlayingSomething();
 
             // Cycle tip on resuming
-            menuTipDisplay.ShowNextTip();
+            if (!Screens.Select.Stable.StableUi.Enabled)
+                menuTipDisplay.ShowNextTip();
 
             bottomElementsFlow
                 .ScaleTo(1, 1000, Easing.OutQuint)

@@ -86,7 +86,7 @@ namespace osu.Game.Screens.Footer
                     Anchor = Anchor.BottomLeft,
                     Origin = Anchor.BottomLeft,
                     Position = new Vector2(-OsuGame.SCREEN_EDGE_MARGIN, OsuGame.SCREEN_EDGE_MARGIN),
-                    Scale = new Vector2(StableUi.SCALE),
+                    Scale = new Vector2(StableUi.DesignScale),
                     Colour = new Color4(235, 69, 153, 255),
                 });
 
