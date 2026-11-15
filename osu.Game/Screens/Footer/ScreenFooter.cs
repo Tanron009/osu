@@ -19,6 +19,7 @@ using osu.Game.Input.Bindings;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Mods;
 using osu.Game.Screens.Menu;
+using osu.Game.Screens.Select.Stable;
 using osu.Game.Skinning;
 using osuTK;
 
@@ -40,7 +41,7 @@ namespace osu.Game.Screens.Footer
 
         public bool HasButtons => leftButtonsFlow.Count > 0 || rightButtonsFlow.Count > 0;
 
-        public const int HEIGHT = 50;
+        public static float HEIGHT => StableUi.Enabled ? StableUi.FOOTER_HEIGHT : 50;
 
         private const int padding = 60;
         private const float delay_per_button = 30;
@@ -89,6 +90,14 @@ namespace osu.Game.Screens.Footer
             base.LoadComplete();
 
             legacyBar.Active.BindValueChanged(a => background.Alpha = a.NewValue ? 0 : 1, true);
+
+            if (StableUi.Enabled)
+            {
+                leftButtonsFlow.Anchor = Anchor.TopLeft;
+                leftButtonsFlow.Origin = Anchor.TopLeft;
+                leftButtonsFlow.Y = 0;
+                leftButtonsFlow.Spacing = new Vector2(6, 0);
+            }
         }
 
         [BackgroundDependencyLoader]

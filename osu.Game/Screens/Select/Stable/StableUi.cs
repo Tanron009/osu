@@ -13,6 +13,11 @@ namespace osu.Game.Screens.Select.Stable
     {
         public static bool Enabled { get; set; }
 
+        /// <summary>
+        /// stable lays everything out for 1366x768 and scales to the window height; at 1080p that is this factor.
+        /// </summary>
+        public const float SCALE = 1080f / 768f;
+
         public static readonly Color4 SET_PANEL_COLOUR = new Color4(221, 71, 147, 255);
         public static readonly Color4 DIFFICULTY_PANEL_COLOUR = new Color4(1, 129, 202, 255);
         public static readonly Color4 SELECTED_PANEL_COLOUR = new Color4(217, 217, 217, 255);

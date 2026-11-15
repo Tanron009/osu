@@ -19,6 +19,7 @@ using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Input.Bindings;
 using osu.Game.Overlays;
+using osu.Game.Screens.Select.Stable;
 using osu.Game.Skinning;
 using osuTK;
 using osuTK.Graphics;
@@ -224,6 +225,19 @@ namespace osu.Game.Screens.Footer
                     Depth = 1,
                 });
 
+                if (StableUi.Enabled)
+                {
+                    // stable draws these at native size (scaled to the window), top-aligned to the footer.
+                    foreach (var art in new[] { legacyArt, legacyArtOver })
+                    {
+                        art.RelativeSizeAxes = Axes.None;
+                        art.FillMode = FillMode.Stretch;
+                        art.Anchor = Anchor.TopLeft;
+                        art.Origin = Anchor.TopLeft;
+                        art.Scale = new Vector2(StableUi.SCALE);
+                    }
+                }
+
                 legacyArt.Active.BindValueChanged(_ => updateLegacyArt());
                 legacyArtOver.Active.BindValueChanged(_ => updateLegacyArt());
             }
@@ -301,6 +315,10 @@ namespace osu.Game.Screens.Footer
                 return;
 
             bool active = legacyArt.Active.Value;
+
+            if (StableUi.Enabled && active && legacyArt.Texture != null)
+                Size = new Vector2(legacyArt.Texture.DisplayWidth, legacyArt.Texture.DisplayHeight) * StableUi.SCALE;
+
             bool showOver = active && IsHovered && Enabled.Value && legacyArtOver.Active.Value;
 
             legacyArt.Alpha = active && !showOver ? 1 : 0;

@@ -32,9 +32,9 @@ namespace osu.Game.Screens.Select.Stable
         private Box body = null!;
         private Container thumbnailContainer = null!;
         private UpdateableBeatmapBackgroundSprite thumbnail = null!;
-        private OsuSpriteText titleText = null!;
-        private OsuSpriteText artistText = null!;
-        private OsuSpriteText difficultyText = null!;
+        private TruncatingSpriteText titleText = null!;
+        private TruncatingSpriteText artistText = null!;
+        private TruncatingSpriteText difficultyText = null!;
         private FillFlowContainer starsFlow = null!;
         private OsuSpriteText groupText = null!;
 
@@ -91,23 +91,20 @@ namespace osu.Game.Screens.Select.Stable
                     Spacing = new Vector2(0, -2),
                     Children = new Drawable[]
                     {
-                        titleText = new OsuSpriteText
+                        titleText = new TruncatingSpriteText
                         {
                             Font = OsuFont.GetFont(Typeface.Torus, 30, FontWeight.Regular),
-                            Truncate = true,
-                            RelativeSizeAxes = Axes.X,
+                                                        RelativeSizeAxes = Axes.X,
                         },
-                        artistText = new OsuSpriteText
+                        artistText = new TruncatingSpriteText
                         {
                             Font = OsuFont.GetFont(Typeface.Torus, 24, FontWeight.Regular),
-                            Truncate = true,
-                            RelativeSizeAxes = Axes.X,
+                                                        RelativeSizeAxes = Axes.X,
                         },
-                        difficultyText = new OsuSpriteText
+                        difficultyText = new TruncatingSpriteText
                         {
                             Font = OsuFont.GetFont(Typeface.Torus, 26, FontWeight.Bold),
-                            Truncate = true,
-                            RelativeSizeAxes = Axes.X,
+                                                        RelativeSizeAxes = Axes.X,
                         },
                         starsFlow = new FillFlowContainer
                         {
