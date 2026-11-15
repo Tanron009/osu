@@ -6,6 +6,8 @@ using osuTK.Graphics;
 using osu.Game.Audio;
 using osu.Game.Skinning;
 
+using osuTK;
+
 namespace osu.Game.Screens.Select.Stable
 {
     /// <summary>
