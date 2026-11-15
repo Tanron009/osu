@@ -1072,6 +1072,9 @@ namespace osu.Game
             // This prevents the cursor from showing until we have a screen with CursorVisible = true
             GlobalCursorDisplay.ShowCursor = menuScreen?.CursorVisible ?? false;
 
+            if (Environment.GetEnvironmentVariable("OSU_DEMO_RESULTS") == "1")
+                runStableUiDemo();
+
             // todo: all archive managers should be able to be looped here.
             SkinManager.PostNotification = n => Notifications.Post(n);
             SkinManager.PresentImport = items => PresentSkin(items.First().Value);

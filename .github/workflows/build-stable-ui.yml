@@ -3,7 +3,7 @@ name: Build stable-ui fork
 on:
   workflow_dispatch:
   push:
-    branches: [stable-ui]
+    branches: [stable-ui, stable-ui-demo]
 
 jobs:
   build:
@@ -15,6 +15,8 @@ jobs:
             rid: win-x64
           - os: macos-latest
             rid: osx-arm64
+          - os: ubuntu-latest
+            rid: linux-x64
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
