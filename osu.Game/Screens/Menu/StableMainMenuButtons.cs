@@ -80,7 +80,8 @@ namespace osu.Game.Screens.Menu
                 target = (input.CurrentState.Mouse.Position - centre) * 0.035f;
             }
 
-            StableUi.MenuParallax = (Vector2)Interpolation.DampContinuously(StableUi.MenuParallax, target, 80, Time.Elapsed);
+            var cur = StableUi.MenuParallax;
+            StableUi.MenuParallax = new Vector2((float)Interpolation.DampContinuously(cur.X, target.X, 80, Time.Elapsed), (float)Interpolation.DampContinuously(cur.Y, target.Y, 80, Time.Elapsed));
             space.Position = StableUi.MenuParallax / StableUi.PxPerUnit;
         }
 
