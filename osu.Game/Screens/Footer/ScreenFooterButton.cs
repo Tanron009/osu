@@ -326,10 +326,16 @@ namespace osu.Game.Screens.Footer
                 // art was switched away from relative sizing, so it needs an explicit native size (scale is applied separately)
                 legacyArt.Size = new Vector2(legacyArt.Texture.DisplayWidth, legacyArt.Texture.DisplayHeight);
 
+                // skins may use a 1x1 transparent base image (the art is baked into the footer bar) - keep a usable hit area from the hover art
+                var hitSize = legacyArt.Size;
+
+                if (hitSize.X < 16 && legacyArtOver.Texture != null)
+                    hitSize = new Vector2(legacyArtOver.Texture.DisplayWidth, legacyArtOver.Texture.DisplayHeight);
+
                 if (legacyArtOver.Texture != null)
                     legacyArtOver.Size = new Vector2(legacyArtOver.Texture.DisplayWidth, legacyArtOver.Texture.DisplayHeight);
 
-                Size = legacyArt.Size * StableUi.SCALE;
+                Size = hitSize * StableUi.SCALE;
             }
 
             bool showOver = active && IsHovered && Enabled.Value && legacyArtOver.Active.Value;

@@ -108,6 +108,10 @@ namespace osu.Game.Screens.Menu
                 Child = buttonArea = new ButtonArea()
             };
 
+            // osu!stable UI draws its own buttons (StableMainMenuButtons); lazer's stay alive but invisible
+            if (StableUi.Enabled)
+                logoTrackingContainer.Alpha = 0;
+
             buttonArea.AddRange(new Drawable[]
             {
                 new MainMenuButton(ButtonSystemStrings.Settings, string.Empty, OsuIcon.Settings, new Color4(85, 85, 85, 255), (_, _) => OnSettings?.Invoke(), Key.O, Key.S)

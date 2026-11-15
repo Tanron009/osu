@@ -9,7 +9,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
-using osu.Game.Beatmaps;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Online.API;
@@ -36,16 +35,9 @@ namespace osu.Game.Screens.Menu
         private OsuSpriteText accText = null!;
         private OsuSpriteText levelText = null!;
         private Box levelFill = null!;
-        private OsuSpriteText infoText = null!;
-
-        private int beatmapCount;
-        private double elapsed;
 
         [Resolved]
         private IAPIProvider api { get; set; } = null!;
-
-        [Resolved]
-        private BeatmapManager beatmaps { get; set; } = null!;
 
         [Resolved]
         private MusicController music { get; set; } = null!;
@@ -81,16 +73,8 @@ namespace osu.Game.Screens.Menu
                         levelFill = new Box { RelativeSizeAxes = Axes.Y, Colour = new Color4(255, 200, 40, 255) },
                     }
                 },
-                infoText = new OsuSpriteText
-                {
-                    Position = new Vector2(480, -4),
-                    Font = OsuFont.GetFont(Typeface.Torus, 31, FontWeight.Regular),
-                    Spacing = new Vector2(0, -4),
-                },
                 createMusicControls(),
             };
-
-            beatmapCount = beatmaps.GetAllUsableBeatmapSets().Count;
 
             user.BindTo(api.LocalUser);
             user.BindValueChanged(_ => refreshUser(), true);
@@ -138,18 +122,6 @@ namespace osu.Game.Screens.Menu
             accText.Text = stats.Accuracy > 0 ? $"Accuracy:{stats.Accuracy:0.00}%" : string.Empty;
             levelText.Text = stats.Level.Current > 0 ? $"Lv{stats.Level.Current}" : string.Empty;
             levelFill.Width = 277 * Math.Clamp(stats.Level.Progress / 100f, 0, 1);
-        }
-
-        protected override void Update()
-        {
-            base.Update();
-
-            elapsed += Time.Elapsed;
-
-            int seconds = (int)(elapsed / 1000);
-            string running = seconds < 60 ? $"{seconds} seconds" : seconds < 3600 ? $"{seconds / 60} minutes" : $"{seconds / 3600} hours";
-
-            infoText.Text = $"You have {beatmapCount} beatmaps available!\nosu! has been running for {running}.\nIt is currently {DateTime.Now:h:mm tt}.";
         }
 
         private partial class ControlButton : CompositeDrawable
