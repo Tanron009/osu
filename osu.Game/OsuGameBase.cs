@@ -516,30 +516,45 @@ namespace osu.Game
         }
 
         /// <summary>
+        /// Serves glyph atlas pages under both <c>name_0.png</c> and <c>name_00.png</c>, since both spellings have been used by the framework.
+        /// </summary>
+        private class StablePageAliasStore : ResourceStore<byte[]>
+        {
+            public StablePageAliasStore(IResourceStore<byte[]> inner)
+                : base(inner)
+            {
+            }
+
+            public override byte[] Get(string name) => base.Get(name) ?? base.Get(name.Replace(@"_00.png", @"_0.png"));
+
+            public override Stream GetStream(string name) => base.GetStream(name) ?? base.GetStream(name.Replace(@"_00.png", @"_0.png"));
+        }
+
+        /// <summary>
         /// Registers stable's Aller font from <c>stable-assets/Fonts</c> in the data folder, or a <c>stable-fonts</c> folder next to the executable.
         /// </summary>
         private bool tryAddStableFonts()
         {
             try
             {
-                IResourceStore<byte[]>? store = null;
+                ResourceStore<byte[]>? store = null;
 
                 if (Storage.ExistsDirectory(@"stable-assets/Fonts"))
-                    store = new StorageBackedResourceStore(Storage.GetStorageForDirectory(@"stable-assets/Fonts"));
+                    store = new StablePageAliasStore(new StorageBackedResourceStore(Storage.GetStorageForDirectory(@"stable-assets/Fonts")));
                 else
                 {
                     string dir = Path.Combine(AppContext.BaseDirectory, @"stable-fonts");
 
                     if (Directory.Exists(dir))
-                        store = new StorageBackedResourceStore(new NativeStorage(dir));
+                        store = new StablePageAliasStore(new StorageBackedResourceStore(new NativeStorage(dir)));
                 }
 
-                if (store == null || store.Get(@"Aller-Regular.ttf") == null || store.Get(@"Aller-Light.ttf") == null || store.Get(@"Aller-Bold.ttf") == null)
+                if (store == null || store.Get(@"Aller-Regular.bin") == null || store.Get(@"Aller-Light.bin") == null || store.Get(@"Aller-Bold.bin") == null)
                     return false;
 
-                AddOutlineFont(store, @"Aller-Regular");
-                AddOutlineFont(store, @"Aller-Light");
-                AddOutlineFont(store, @"Aller-Bold");
+                AddFont(store, @"Aller-Regular");
+                AddFont(store, @"Aller-Light");
+                AddFont(store, @"Aller-Bold");
                 return true;
             }
             catch (Exception e)
