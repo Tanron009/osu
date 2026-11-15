@@ -526,8 +526,6 @@ namespace osu.Game
             }
 
             public override byte[] Get(string name) => base.Get(name) ?? base.Get(name.Replace(@"_00.png", @"_0.png"));
-
-            public override Stream GetStream(string name) => base.GetStream(name) ?? base.GetStream(name.Replace(@"_00.png", @"_0.png"));
         }
 
         /// <summary>
