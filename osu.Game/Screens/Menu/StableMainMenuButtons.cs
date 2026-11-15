@@ -48,7 +48,7 @@ namespace osu.Game.Screens.Menu
                     Anchor = Anchor.CentreRight,
                     Origin = Anchor.CentreRight,
                     X = 0,
-                    Y = (i - 1.5f) * 125,
+                    Y = (i - 1.5f) * 100,
                 });
             }
         }
@@ -76,11 +76,10 @@ namespace osu.Game.Screens.Menu
             private void load()
             {
                 AutoSizeAxes = Axes.Both;
-                Scale = new Vector2(StableUi.SCALE);
+                Scale = new Vector2(StableUi.SCALE * 0.5f);
 
                 AddRange(new Drawable[]
                 {
-                    new StableSkinSprite(@"menu-button-background"),
                     normal = new StableSkinSprite($@"menu-button-{name}"),
                     over = new StableSkinSprite($@"menu-button-{name}-over") { Alpha = 0 },
                 });
