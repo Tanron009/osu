@@ -26,6 +26,14 @@ namespace osu.Game.Screens.RankingV2.Legacy
         [Resolved]
         protected IBindable<IScoreInfo> Score { get; private set; } = null!;
 
+        [Resolved]
+        private IResultsScreenV2? resultsScreen { get; set; }
+
+        /// <summary>
+        /// The action to perform on click when <see cref="Action"/> has not been set explicitly.
+        /// </summary>
+        protected virtual Action? GetDefaultAction(IResultsScreenV2? results) => null;
+
         protected LegacyRankingButton(params string[] spriteNames)
         {
             this.spriteNames = spriteNames;
@@ -69,7 +77,7 @@ namespace osu.Game.Screens.RankingV2.Legacy
 
         protected override bool OnClick(ClickEvent e)
         {
-            Action?.Invoke();
+            (Action ?? GetDefaultAction(resultsScreen))?.Invoke();
             sample.Play();
             return true;
         }
@@ -95,6 +103,8 @@ namespace osu.Game.Screens.RankingV2.Legacy
             : base(@"ranking-retry", @"pause-retry")
         {
         }
+
+        protected override Action? GetDefaultAction(IResultsScreenV2? results) => results?.RetryAction;
     }
 
     public partial class LegacyRankingWatchReplayButton : LegacyRankingButton
@@ -104,5 +114,7 @@ namespace osu.Game.Screens.RankingV2.Legacy
             : base(@"ranking-replay", @"pause-replay")
         {
         }
+
+        protected override Action? GetDefaultAction(IResultsScreenV2? results) => results?.WatchReplayAction;
     }
 }

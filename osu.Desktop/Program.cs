@@ -21,9 +21,11 @@ namespace osu.Desktop
     public static class Program
     {
 #if DEBUG
-        private const string base_game_name = @"osu-development";
+        // Personal fork: separate data folder from the official client.
+        private const string base_game_name = @"osu-stable-ui-development";
 #else
-        private const string base_game_name = @"osu";
+        // Personal fork: separate data folder from the official client.
+        private const string base_game_name = @"osu-stable-ui";
 #endif
 
         private static LegacyTcpIpcProvider? legacyIpc;

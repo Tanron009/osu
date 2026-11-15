@@ -1,0 +1,32 @@
+name: Build stable-ui fork
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [stable-ui]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: macos-latest
+            rid: osx-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Publish (${{ matrix.rid }})
+        run: dotnet publish osu.Desktop -c Release -r ${{ matrix.rid }} --self-contained -o publish/osu-stable-ui-${{ matrix.rid }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: osu-stable-ui-${{ matrix.rid }}
+          path: publish/osu-stable-ui-${{ matrix.rid }}

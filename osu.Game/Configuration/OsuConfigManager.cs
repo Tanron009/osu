@@ -68,6 +68,9 @@ namespace osu.Game.Configuration
 
             SetDefault(OsuSetting.SongSelectBackgroundBlur, false);
 
+            // Personal fork: use osu!stable-style UI where implemented.
+            SetDefault(OsuSetting.UseStableUI, false);
+
             // Online settings
             SetDefault(OsuSetting.Username, string.Empty);
             SetDefault(OsuSetting.Token, string.Empty);
@@ -398,6 +401,7 @@ namespace osu.Game.Configuration
         BeatmapListingCardSize,
         ToolbarClockDisplayMode,
         SongSelectBackgroundBlur,
+        UseStableUI,
         Version,
         ShowFirstRunSetup,
         ShowConvertedBeatmaps,

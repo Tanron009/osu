@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Versioning;
 using Microsoft.Win32;
@@ -40,6 +41,67 @@ namespace osu.Desktop
         public OsuGameDesktop(string[]? args = null)
             : base(args)
         {
+        }
+
+        protected override Storage CreateStorage(GameHost host, Storage defaultStorage)
+        {
+            seedSettingsFromOfficialInstall(defaultStorage);
+            return base.CreateStorage(host, defaultStorage);
+        }
+
+        /// <summary>
+        /// Personal fork: this build uses its own data folder, so on first run copy the <i>settings files</i> (not beatmaps, skins or scores)
+        /// from the official lazer data folder, which lives next to this one and is named "osu".
+        /// Login details and the selected skin are intentionally not copied.
+        /// </summary>
+        private void seedSettingsFromOfficialInstall(Storage target)
+        {
+            try
+            {
+                string targetPath = Path.GetFullPath(target.GetFullPath(".")).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                string? parent = Path.GetDirectoryName(targetPath);
+
+                if (parent == null)
+                    return;
+
+                string sourcePath = Path.Combine(parent, "osu");
+
+                if (!Directory.Exists(sourcePath) || string.Equals(sourcePath, targetPath, StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                string targetGameConfig = UseDevelopmentServer ? "game.dev.ini" : "game.ini";
+
+                // only ever seed once; after that this build owns its settings.
+                if (File.Exists(Path.Combine(targetPath, targetGameConfig)))
+                    return;
+
+                Directory.CreateDirectory(targetPath);
+
+                string sourceGameConfig = Path.Combine(sourcePath, "game.ini");
+
+                if (File.Exists(sourceGameConfig))
+                {
+                    string[] privateKeys = { "Token", "Username", "Skin" };
+
+                    var lines = File.ReadAllLines(sourceGameConfig)
+                                    .Where(l => !privateKeys.Contains(l.Split('=')[0].Trim()));
+
+                    File.WriteAllLines(Path.Combine(targetPath, targetGameConfig), lines);
+                }
+
+                foreach (string name in new[] { "framework.ini", "input.json" })
+                {
+                    string source = Path.Combine(sourcePath, name);
+                    string destination = Path.Combine(targetPath, name);
+
+                    if (File.Exists(source) && !File.Exists(destination))
+                        File.Copy(source, destination);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Log($"Could not copy settings from the official install: {e.Message}", LoggingTarget.Runtime, LogLevel.Important);
+            }
         }
 
         public override StableStorage? GetStorageForStableInstall()

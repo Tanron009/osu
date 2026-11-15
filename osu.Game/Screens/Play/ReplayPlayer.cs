@@ -22,6 +22,7 @@ using osu.Game.Screens.Play.Leaderboards;
 using osu.Game.Screens.Play.PlayerSettings;
 using osu.Game.Screens.Ranking;
 using osu.Game.Screens.Ranking.Expanded;
+using osu.Game.Screens.RankingV2;
 using osu.Game.Skinning;
 using osu.Game.Users;
 
@@ -160,6 +161,12 @@ namespace osu.Game.Screens.Play
         protected override ResultsScreen CreateResults(ScoreInfo score) => new SoloResultsScreen(score)
         {
             // Only show the relevant button otherwise things look silly.
+            AllowWatchingReplay = !isAutoplayPlayback,
+            AllowRetry = isAutoplayPlayback,
+        };
+
+        protected override IScreen CreateResultsV2(ScoreInfo score) => new SoloResultsScreenV2(score)
+        {
             AllowWatchingReplay = !isAutoplayPlayback,
             AllowRetry = isAutoplayPlayback,
         };

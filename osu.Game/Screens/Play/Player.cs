@@ -90,6 +90,8 @@ namespace osu.Game.Screens.Play
 
         private readonly IBindable<bool> gameActive = new Bindable<bool>(true);
 
+        private readonly Bindable<bool> useStableUI = new Bindable<bool>();
+
         private readonly Bindable<bool> samplePlaybackDisabled = new Bindable<bool>();
 
         /// <summary>
@@ -228,6 +230,8 @@ namespace osu.Game.Screens.Play
         [BackgroundDependencyLoader(true)]
         private void load(OsuConfigManager config, OsuGameBase game, CancellationToken cancellationToken)
         {
+            config.BindWith(OsuSetting.UseStableUI, useStableUI);
+
             var gameplayMods = Mods.Value.Select(m => m.DeepClone()).ToArray();
 
             if (gameplayMods.Any(m => m is UnknownMod))
@@ -896,7 +900,8 @@ namespace osu.Game.Screens.Play
                     return;
 
                 OnShowingResults?.Invoke();
-                this.Push(CreateResults(prepareScoreForDisplayTask.GetResultSafely()));
+                var resultsScore = prepareScoreForDisplayTask.GetResultSafely();
+                this.Push((useStableUI.Value ? CreateResultsV2(resultsScore) : null) ?? CreateResults(resultsScore));
             }, Time.Current + delay, 50);
 
             Scheduler.Add(resultsDisplayDelegate);
@@ -1290,6 +1295,11 @@ namespace osu.Game.Screens.Play
         /// <param name="score">The <see cref="ScoreInfo"/> to be displayed in the results screen.</param>
         /// <returns>The <see cref="ResultsScreen"/>.</returns>
         protected abstract ResultsScreen CreateResults(ScoreInfo score);
+
+        /// <summary>
+        /// Creates the osu!stable-style results screen, if supported by this player. Returning <c>null</c> falls back to <see cref="CreateResults"/>.
+        /// </summary>
+        protected virtual IScreen CreateResultsV2(ScoreInfo score) => null;
 
         private void fadeOut()
         {

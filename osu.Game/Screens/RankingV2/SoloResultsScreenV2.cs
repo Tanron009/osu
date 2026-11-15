@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Linq;
+using System;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -22,6 +23,22 @@ namespace osu.Game.Screens.RankingV2
         private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
 
         private SkinnableContainer mainScreen = null!;
+
+        [Resolved]
+        private Player? player { get; set; }
+
+        [Resolved]
+        private OsuGame? game { get; set; }
+
+        /// <summary>
+        /// Whether the retry button should do anything.
+        /// </summary>
+        public bool AllowRetry { get; init; }
+
+        /// <summary>
+        /// Whether the watch replay button should do anything.
+        /// </summary>
+        public bool AllowWatchingReplay { get; init; } = true;
 
         public SoloResultsScreenV2(IScoreInfo score)
         {
@@ -62,6 +79,30 @@ namespace osu.Game.Screens.RankingV2
         #region IResultsScreenV2
 
         Bindable<ScreenFooterContent?> IResultsScreenV2.FooterContent => FooterContent;
+
+        Action? IResultsScreenV2.RetryAction
+        {
+            get
+            {
+                if (!AllowRetry || player == null)
+                    return null;
+
+                var p = player;
+                return () => p.Restart();
+            }
+        }
+
+        Action? IResultsScreenV2.WatchReplayAction
+        {
+            get
+            {
+                if (!AllowWatchingReplay || game == null)
+                    return null;
+
+                var g = game;
+                return () => g.PresentScore(score.Value, ScorePresentType.Gameplay);
+            }
+        }
 
         #endregion
     }

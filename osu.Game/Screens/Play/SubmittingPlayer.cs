@@ -27,6 +27,7 @@ using osu.Game.Overlays.Notifications;
 using osu.Game.Rulesets.Scoring;
 using osu.Game.Scoring;
 using osu.Game.Screens.Ranking;
+using osu.Game.Screens.RankingV2;
 
 namespace osu.Game.Screens.Play
 {
@@ -372,6 +373,11 @@ namespace osu.Game.Screens.Play
         {
             AllowRetry = true,
             IsLocalPlay = true,
+        };
+
+        protected override IScreen CreateResultsV2(ScoreInfo score) => new SoloResultsScreenV2(score)
+        {
+            AllowRetry = true,
         };
     }
 }

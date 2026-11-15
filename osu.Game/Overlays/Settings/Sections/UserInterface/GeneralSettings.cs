@@ -22,6 +22,15 @@ namespace osu.Game.Overlays.Settings.Sections.UserInterface
             {
                 new SettingsItemV2(new FormCheckBox
                 {
+                    Caption = "Use osu!stable UI",
+                    HintText = "Shows osu!stable-style screens (and skin elements) where supported. Currently affects: the results screen.",
+                    Current = config.GetBindable<bool>(OsuSetting.UseStableUI)
+                })
+                {
+                    Keywords = [@"stable", @"legacy", @"classic", @"skin"],
+                },
+                new SettingsItemV2(new FormCheckBox
+                {
                     Caption = UserInterfaceStrings.CursorRotation,
                     Current = config.GetBindable<bool>(OsuSetting.CursorRotation)
                 })

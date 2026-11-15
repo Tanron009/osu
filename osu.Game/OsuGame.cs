@@ -100,9 +100,10 @@ namespace osu.Game
     {
 #if DEBUG
         // Different port allows running release and debug builds alongside each other.
-        public const string IPC_PIPE_NAME = "osu-lazer-debug";
+        public const string IPC_PIPE_NAME = "osu-lazer-stable-ui-debug";
 #else
-        public const string IPC_PIPE_NAME = "osu-lazer";
+        // Personal fork: distinct pipe so this can run alongside the official client.
+        public const string IPC_PIPE_NAME = "osu-lazer-stable-ui";
 #endif
 
         /// <summary>
