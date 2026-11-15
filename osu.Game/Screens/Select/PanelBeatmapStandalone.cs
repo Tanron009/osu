@@ -25,11 +25,13 @@ using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osuTK;
 
+using osu.Game.Screens.Select.Stable;
+
 namespace osu.Game.Screens.Select
 {
     public partial class PanelBeatmapStandalone : Panel
     {
-        public const float HEIGHT = CarouselItem.DEFAULT_HEIGHT * 1.6f;
+        public static float HEIGHT => StableUi.Enabled ? StableUi.PANEL_HEIGHT : CarouselItem.DEFAULT_HEIGHT * 1.6f;
 
         [Resolved]
         private IBindable<RulesetInfo> ruleset { get; set; } = null!;

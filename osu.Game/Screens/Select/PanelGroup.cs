@@ -22,11 +22,13 @@ using osuTK;
 using osuTK.Graphics;
 using WebCommonStrings = osu.Game.Resources.Localisation.Web.CommonStrings;
 
+using osu.Game.Screens.Select.Stable;
+
 namespace osu.Game.Screens.Select
 {
     public partial class PanelGroup : Panel
     {
-        public const float HEIGHT = CarouselItem.DEFAULT_HEIGHT * 1.2f;
+        public static float HEIGHT => StableUi.Enabled ? StableUi.GROUP_PANEL_HEIGHT : CarouselItem.DEFAULT_HEIGHT * 1.2f;
 
         private Drawable iconContainer = null!;
         private OsuSpriteText titleText = null!;

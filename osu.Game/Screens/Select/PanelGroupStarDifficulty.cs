@@ -25,7 +25,7 @@ namespace osu.Game.Screens.Select
 {
     public partial class PanelGroupStarDifficulty : Panel
     {
-        public const float HEIGHT = PanelGroup.HEIGHT;
+        public static float HEIGHT => PanelGroup.HEIGHT;
 
         [Resolved]
         private OsuColour colours { get; set; } = null!;

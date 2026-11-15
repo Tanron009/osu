@@ -20,6 +20,7 @@ using osu.Game.Graphics.Carousel;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
+using osu.Game.Screens.Select.Stable;
 using osu.Game.Skinning;
 using osuTK;
 using osuTK.Graphics;
@@ -39,6 +40,7 @@ namespace osu.Game.Screens.Select
         private Container backgroundContainer = null!;
         private StableSkinSprite legacyBackground = null!;
         private Container iconContainer = null!;
+        private StablePanelContent? stableContent;
 
         private Drawable activationFlash = null!;
         private Drawable hoverLayer = null!;
@@ -174,6 +176,13 @@ namespace osu.Game.Screens.Select
             };
 
             legacyBackground.Active.BindValueChanged(a => backgroundContainer.Alpha = a.NewValue ? 0 : 1, true);
+
+            if (StableUi.Enabled)
+            {
+                // osu!stable UI: draw the stable look on top of (and fully covering) the lazer panel.
+                TopLevelContent.CornerRadius = 0;
+                TopLevelContent.Add(stableContent = new StablePanelContent());
+            }
         }
 
         public partial class PulsatingBox : BeatSyncedContainer
@@ -274,6 +283,7 @@ namespace osu.Game.Screens.Select
             {
                 updateSelectedState();
                 updateXOffset();
+                stableContent?.SetHighlighted(Selected.Value);
             }, true);
 
             KeyboardSelected.BindValueChanged(selected =>
@@ -304,6 +314,8 @@ namespace osu.Game.Screens.Select
             updateXOffset(animated: false);
             updateSelectedState(animated: false);
 
+            bindStableContent();
+
             this.FadeIn(DURATION, Easing.OutQuint);
         }
 
@@ -312,6 +324,7 @@ namespace osu.Game.Screens.Select
             base.FreeAfterUse();
 
             Hide();
+            stableContent?.Clear();
 
             // Important to set this to null to handle reuse scenarios correctly, see `Item` implementation.
             item = null;
@@ -326,6 +339,29 @@ namespace osu.Game.Screens.Select
                 carousel?.Activate(item);
 
             return true;
+        }
+
+        private void bindStableContent()
+        {
+            if (stableContent == null || Item == null)
+                return;
+
+            switch (Item.Model)
+            {
+                case GroupedBeatmapSet set:
+                    stableContent.SetBeatmapSet(set.BeatmapSet);
+                    break;
+
+                case GroupedBeatmap beatmap:
+                    stableContent.SetBeatmap(beatmap.Beatmap);
+                    break;
+
+                case GroupDefinition group:
+                    stableContent.SetGroup(group.Title);
+                    break;
+            }
+
+            stableContent.SetHighlighted(Selected.Value);
         }
 
         private void updateAccentColour()

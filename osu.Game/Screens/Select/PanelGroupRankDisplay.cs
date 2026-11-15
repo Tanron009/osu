@@ -27,7 +27,7 @@ namespace osu.Game.Screens.Select
 {
     public partial class PanelGroupRankDisplay : Panel
     {
-        public const float HEIGHT = PanelGroup.HEIGHT;
+        public static float HEIGHT => PanelGroup.HEIGHT;
 
         [Resolved]
         private OverlayColourProvider colourProvider { get; set; } = null!;
