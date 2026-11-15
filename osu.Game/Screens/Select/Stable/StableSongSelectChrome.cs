@@ -112,7 +112,7 @@ namespace osu.Game.Screens.Select.Stable
                     Y = 2,
                     Font = OsuFont.GetFont(Typeface.Torus, 22, FontWeight.Regular),
                 },
-                new SpriteText
+                new OsuSpriteText
                 {
                     Anchor = Anchor.TopRight,
                     Origin = Anchor.CentreRight,
@@ -130,7 +130,7 @@ namespace osu.Game.Screens.Select.Stable
                     Y = 22,
                     Size = new Vector2(270, 34),
                 },
-                new SpriteText
+                new OsuSpriteText
                 {
                     Anchor = Anchor.TopRight,
                     Origin = Anchor.CentreRight,
