@@ -26,6 +26,7 @@ namespace osu.Game.Screens.Menu
             RelativeSizeAxes = Axes.Both;
             Alpha = 0;
             AlwaysPresent = true;
+            Depth = 1;
         }
 
         [BackgroundDependencyLoader]
@@ -46,7 +47,7 @@ namespace osu.Game.Screens.Menu
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.CentreLeft,
-                    X = -40,
+                    X = 40,
                     Y = (i - 1.5f) * 125,
                 });
             }
