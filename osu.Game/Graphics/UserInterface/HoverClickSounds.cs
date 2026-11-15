@@ -5,8 +5,10 @@ using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Sample;
-using osu.Framework.Input.Events;
 using osu.Game.Audio;
+using osu.Game.Screens.Select.Stable;
+using osu.Game.Skinning;
+using osu.Framework.Input.Events;
 using osuTK.Input;
 
 namespace osu.Game.Graphics.UserInterface
@@ -19,6 +21,9 @@ namespace osu.Game.Graphics.UserInterface
     {
         private Sample? sampleClick;
         private Sample? sampleClickDisabled;
+
+        [Resolved]
+        private ISkinSource? skin { get; set; }
 
         private readonly MouseButton[] buttons;
 
@@ -54,7 +59,13 @@ namespace osu.Game.Graphics.UserInterface
             return base.OnClick(e);
         }
 
-        public void PlayClickSample() =>
+        public void PlayClickSample()
+        {
+            // osu!stable UI: use the skin's own navigation sounds when it provides them
+            if (StableUi.Enabled && Enabled.Value && StableUi.PlaySkinSample(skin, StableUi.ClickSampleName))
+                return;
+
             SamplePlaybackHelper.PlayWithRandomPitch(Enabled.Value ? sampleClick : sampleClickDisabled, pitchVariation: 0.01);
+        }
     }
 }

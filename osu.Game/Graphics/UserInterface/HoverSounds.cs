@@ -9,6 +9,8 @@ using osu.Framework.Audio.Sample;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Game.Audio;
+using osu.Game.Screens.Select.Stable;
+using osu.Game.Skinning;
 
 namespace osu.Game.Graphics.UserInterface
 {
@@ -21,6 +23,9 @@ namespace osu.Game.Graphics.UserInterface
         public readonly Bindable<bool> Enabled = new Bindable<bool>(true);
 
         private Sample sampleHover;
+
+        [Resolved(CanBeNull = true)]
+        private ISkinSource skin { get; set; }
 
         protected readonly HoverSampleSet SampleSet;
 
@@ -40,6 +45,10 @@ namespace osu.Game.Graphics.UserInterface
         public override void PlayHoverSample()
         {
             if (!Enabled.Value)
+                return;
+
+            // osu!stable UI: use the skin's own navigation sounds when it provides them
+            if (StableUi.Enabled && StableUi.PlaySkinSample(skin, StableUi.HoverSampleName))
                 return;
 
             SamplePlaybackHelper.PlayWithRandomPitch(sampleHover, pitchVariation: 0.02);

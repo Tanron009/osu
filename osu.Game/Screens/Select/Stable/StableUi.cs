@@ -3,6 +3,9 @@
 
 using osuTK.Graphics;
 
+using osu.Game.Audio;
+using osu.Game.Skinning;
+
 namespace osu.Game.Screens.Select.Stable
 {
     /// <summary>
@@ -12,6 +15,26 @@ namespace osu.Game.Screens.Select.Stable
     public static class StableUi
     {
         public static bool Enabled { get; set; }
+
+        /// <summary>stable skin sample names used for general menu navigation (hover / click).</summary>
+        public const string HoverSampleName = @"click-short";
+
+        public const string ClickSampleName = @"click-short-confirm";
+
+        /// <summary>
+        /// Plays a sample from the skin if it provides one.
+        /// </summary>
+        /// <returns>Whether a skin sample was played.</returns>
+        public static bool PlaySkinSample(ISkinSource? skin, string name)
+        {
+            var channel = skin?.GetSample(new SampleInfo(name))?.GetChannel();
+
+            if (channel == null)
+                return false;
+
+            channel.Play();
+            return true;
+        }
 
         /// <summary>
         /// stable lays everything out for 1366x768 and scales to the window height; at 1080p that is this factor.
