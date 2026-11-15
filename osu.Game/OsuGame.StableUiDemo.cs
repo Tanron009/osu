@@ -6,6 +6,7 @@ using System.Linq;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osu.Game.Configuration;
+using osu.Game.Database;
 using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Rulesets.Scoring;
 using osu.Game.Scoring;
@@ -21,12 +22,26 @@ namespace osu.Game
             Logger.Log("[demo] OSU_DEMO_RESULTS set, will open the V2 results screen", LoggingTarget.Runtime, LogLevel.Important);
 
             LocalConfig.SetValue(OsuSetting.ShowFirstRunSetup, false);
+            LocalConfig.SetValue(OsuSetting.UseStableUI, Environment.GetEnvironmentVariable("OSU_DEMO_STABLE") != "0");
 
             Scheduler.AddDelayed(() =>
             {
                 try
                 {
-                    SkinManager.CurrentSkinInfo.Value = SkinManager.DefaultClassicSkin.SkinInfo;
+                    string skinName = Environment.GetEnvironmentVariable("OSU_DEMO_SKIN");
+
+                    if (!string.IsNullOrEmpty(skinName))
+                    {
+                        var skin = SkinManager.GetAllUsableSkins().FirstOrDefault(s => s.PerformRead(i => i.Name) == skinName);
+
+                        if (skin != null)
+                            SkinManager.CurrentSkinInfo.Value = skin;
+                        else
+                            Logger.Log($"[demo] skin not found: {skinName}", LoggingTarget.Runtime, LogLevel.Important);
+                    }
+
+                    if (Environment.GetEnvironmentVariable("OSU_DEMO_SCREEN") != "results")
+                        return;
 
                     var ruleset = RulesetStore.AvailableRulesets.First();
 
@@ -62,7 +77,7 @@ namespace osu.Game
                 {
                     Logger.Error(e, "[demo] failed to open results screen");
                 }
-            }, 15000);
+            }, 25000);
         }
     }
 }
