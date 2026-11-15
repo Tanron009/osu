@@ -95,9 +95,30 @@ namespace osu.Game.Screens.Footer
             {
                 leftButtonsFlow.Anchor = Anchor.TopLeft;
                 leftButtonsFlow.Origin = Anchor.TopLeft;
-                leftButtonsFlow.Y = -24;
-                leftButtonsFlow.Spacing = new Vector2(6, 0);
             }
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            if (!StableUi.Enabled)
+                return;
+
+            // stable places Mods / Random / Options at fixed spots on its footer (measured at 1080p: first button at x=446, tops 88px above the bottom edge, 110px pitch)
+            float px = StableUi.PxPerUnit;
+
+            leftButtonsFlow.Spacing = new Vector2(1.5f / px, 0);
+
+            float dx = (446f - leftButtonsFlow.ScreenSpaceDrawQuad.TopLeft.X) / px;
+            float bottom = ToScreenSpace(new Vector2(0, DrawHeight)).Y;
+            float dy = (bottom - 88f - leftButtonsFlow.ScreenSpaceDrawQuad.TopLeft.Y) / px;
+
+            if (System.Math.Abs(dx) > 0.02f)
+                leftButtonsFlow.X += dx;
+
+            if (System.Math.Abs(dy) > 0.02f)
+                leftButtonsFlow.Y += dy;
         }
 
         [BackgroundDependencyLoader]
