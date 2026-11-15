@@ -65,6 +65,8 @@ namespace osu.Game.Screens.Select.Stable
         private BeatmapDifficultyCache difficultyCache { get; set; } = null!;
 
         private StableSkinSprite headerArt = null!;
+        private StableSkinSprite modeArt = null!;
+        private Drawable tabsRoot = null!;
 
         public StableSongSelectChrome(FilterControl filterControl)
         {
@@ -83,6 +85,14 @@ namespace osu.Game.Screens.Select.Stable
             InternalChildren = new Drawable[]
             {
                 // stable draws this at its native size (scaled to the window), top-aligned; skins may make it taller than the default
+                // skins that ship a big selection-mode image use it as full screen decoration (stable draws it bottom right)
+                modeArt = new StableSkinSprite(@"selection-mode")
+                {
+                    Anchor = Anchor.BottomRight,
+                    Origin = Anchor.BottomRight,
+                    Scale = new Vector2(scale),
+                    Alpha = 0,
+                },
                 headerArt = new StableSkinSprite(@"songselect-top")
                 {
                     Scale = new Vector2(scale),
@@ -152,7 +162,11 @@ namespace osu.Game.Screens.Select.Stable
                     Y = 22,
                     Size = new Vector2(268, 34),
                 },
-                createTabs().With(t => t.Depth = 1),
+                createTabs().With(t =>
+                {
+                    t.Depth = 1;
+                    tabsRoot = t;
+                }),
                 new FillFlowContainer
                 {
                     Anchor = Anchor.TopRight,
@@ -192,9 +206,27 @@ namespace osu.Game.Screens.Select.Stable
             };
         }
 
+        private void updateModeArt()
+        {
+            bool big = modeArt.FromSkin && modeArt.Texture != null && modeArt.Texture.DisplayWidth > 600;
+            modeArt.Alpha = big ? 1 : 0;
+            StableUi.HideLogo = big;
+
+            // the skin art already draws the group tabs
+            tabsRoot.Alpha = big ? 0 : 1;
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            StableUi.HideLogo = false;
+            base.Dispose(isDisposing);
+        }
+
         protected override void LoadComplete()
         {
             base.LoadComplete();
+
+            modeArt.Active.BindValueChanged(_ => updateModeArt(), true);
 
             // skins that ship their own songselect-top art usually bake the Group/Sort labels (and tabs) into it
             if (headerArt.FromSkin)
