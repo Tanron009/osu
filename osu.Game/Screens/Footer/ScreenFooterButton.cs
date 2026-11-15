@@ -313,6 +313,8 @@ namespace osu.Game.Screens.Footer
                 glowBox.Alpha = alpha;
                 bar.Alpha = alpha;
                 icon.Alpha = alpha;
+                // the skin art already contains the label, so only keep extras (e.g. the mod display bar)
+                text.Alpha = alpha;
             }
             else
                 shearedContent.Alpha = active ? 0 : 1;
