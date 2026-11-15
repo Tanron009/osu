@@ -45,9 +45,9 @@ namespace osu.Game.Screens.Menu
             {
                 Add(new StableButton(names[i], actions[i])
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.CentreLeft,
-                    X = 40,
+                    Anchor = Anchor.CentreRight,
+                    Origin = Anchor.CentreRight,
+                    X = 0,
                     Y = (i - 1.5f) * 125,
                 });
             }
