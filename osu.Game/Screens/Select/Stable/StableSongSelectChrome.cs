@@ -52,6 +52,8 @@ namespace osu.Game.Screens.Select.Stable
 
         private readonly List<(GroupMode mode, StableSkinSprite art, Box fill, OsuSpriteText text)> tabs = new List<(GroupMode, StableSkinSprite, Box, OsuSpriteText)>();
 
+        private readonly StableLeaderboard leaderboard = new StableLeaderboard();
+
         private CancellationTokenSource? starCancellation;
         private IBindable<StarDifficulty>? starBindable;
         private string starText = string.Empty;
@@ -61,6 +63,8 @@ namespace osu.Game.Screens.Select.Stable
 
         [Resolved]
         private BeatmapDifficultyCache difficultyCache { get; set; } = null!;
+
+        private StableSkinSprite headerArt = null!;
 
         public StableSongSelectChrome(FilterControl filterControl)
         {
@@ -79,7 +83,7 @@ namespace osu.Game.Screens.Select.Stable
             InternalChildren = new Drawable[]
             {
                 // stable draws this at its native size (scaled to the window), top-aligned; skins may make it taller than the default
-                new StableSkinSprite(@"songselect-top")
+                headerArt = new StableSkinSprite(@"songselect-top")
                 {
                     Scale = new Vector2(scale),
                 },
@@ -148,7 +152,7 @@ namespace osu.Game.Screens.Select.Stable
                     Y = 22,
                     Size = new Vector2(268, 34),
                 },
-                createTabs(),
+                createTabs().With(t => t.Depth = 1),
                 new FillFlowContainer
                 {
                     Anchor = Anchor.TopRight,
@@ -177,7 +181,13 @@ namespace osu.Game.Screens.Select.Stable
                     Padding = new MarginPadding { Left = 14, Top = 196, Bottom = StableUi.FOOTER_HEIGHT },
                     RelativeSizeAxes = Axes.Y,
                     Width = 570,
-                    Child = new StableLeaderboard()
+                    Child = leaderboard
+                },
+                new SelectorBox<BeatmapLeaderboardScope>(leaderboard.Scope, v => $"{v} Ranking")
+                {
+                    X = 14,
+                    Y = 160,
+                    Size = new Vector2(430, 32),
                 },
             };
         }
@@ -185,6 +195,16 @@ namespace osu.Game.Screens.Select.Stable
         protected override void LoadComplete()
         {
             base.LoadComplete();
+
+            // skins that ship their own songselect-top art usually bake the Group/Sort labels (and tabs) into it
+            if (headerArt.FromSkin)
+            {
+                foreach (var d in InternalChildren)
+                {
+                    if (d is OsuSpriteText t && (t.Text.ToString() == "Group" || t.Text.ToString() == "Sort"))
+                        t.Alpha = 0;
+                }
+            }
 
             filterControl.CriteriaChanged += c => Schedule(() => onCriteria(c.SearchText));
             groupMode.BindValueChanged(_ => updateTabs(), true);

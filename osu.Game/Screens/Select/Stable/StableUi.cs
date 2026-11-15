@@ -16,6 +16,11 @@ namespace osu.Game.Screens.Select.Stable
     {
         public static bool Enabled { get; set; }
 
+        /// <summary>stable's main menu: logo position (fraction of screen width) and scale while the buttons are showing.</summary>
+        public const float MENU_LOGO_X = 695f / 1920f;
+
+        public const float MENU_LOGO_SCALE = 1.24f;
+
         /// <summary>stable skin sample names used for general menu navigation (hover / click).</summary>
         public const string HoverSampleName = @"click-short";
 

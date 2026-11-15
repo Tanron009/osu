@@ -246,6 +246,11 @@ namespace osu.Game.Screens.Menu
                     b.Alpha = 0;
 
                 AddInternal(new StableMainMenuButtons(Buttons));
+                AddInternal(new StableMainMenuTopBar());
+
+                // lazer-only extras that stable's main menu doesn't have
+                songTicker.Alpha = 0;
+                menuTipDisplay.Alpha = 0;
             }
             Buttons.OnBeatmapListing = () => beatmapListing?.ToggleVisibility();
 
