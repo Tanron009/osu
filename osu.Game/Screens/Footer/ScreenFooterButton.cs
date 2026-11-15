@@ -317,7 +317,15 @@ namespace osu.Game.Screens.Footer
             bool active = legacyArt.Active.Value;
 
             if (StableUi.Enabled && active && legacyArt.Texture != null)
-                Size = new Vector2(legacyArt.Texture.DisplayWidth, legacyArt.Texture.DisplayHeight) * StableUi.SCALE;
+            {
+                // art was switched away from relative sizing, so it needs an explicit native size (scale is applied separately)
+                legacyArt.Size = new Vector2(legacyArt.Texture.DisplayWidth, legacyArt.Texture.DisplayHeight);
+
+                if (legacyArtOver.Texture != null)
+                    legacyArtOver.Size = new Vector2(legacyArtOver.Texture.DisplayWidth, legacyArtOver.Texture.DisplayHeight);
+
+                Size = legacyArt.Size * StableUi.SCALE;
+            }
 
             bool showOver = active && IsHovered && Enabled.Value && legacyArtOver.Active.Value;
 
