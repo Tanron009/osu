@@ -25,6 +25,7 @@ namespace osu.Game.Screens.Menu
             this.buttons = buttons;
             RelativeSizeAxes = Axes.Both;
             Alpha = 0;
+            AlwaysPresent = true;
         }
 
         [BackgroundDependencyLoader]
