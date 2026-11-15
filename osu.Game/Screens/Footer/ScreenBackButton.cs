@@ -10,6 +10,7 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Localisation;
+using osu.Game.Skinning;
 using osuTK;
 using osuTK.Graphics;
 
@@ -18,6 +19,8 @@ namespace osu.Game.Screens.Footer
     public partial class ScreenBackButton : ShearedButton
     {
         public const float BUTTON_WIDTH = 240;
+
+        private StableSkinSprite legacyArt = null!;
 
         public sealed override bool ReceivePositionalInputAt(Vector2 screenSpacePos)
         {
@@ -62,6 +65,23 @@ namespace osu.Game.Screens.Footer
                     }
                 }
             };
+
+            AddInternal(legacyArt = new StableSkinSprite(@"menu-back")
+            {
+                Anchor = Anchor.BottomLeft,
+                Origin = Anchor.BottomLeft,
+                // stable art is bottom-left aligned and hugs the screen corner, so undo the margin the footer gives us
+                Position = new Vector2(-OsuGame.SCREEN_EDGE_MARGIN, OsuGame.SCREEN_EDGE_MARGIN),
+            });
+
+            legacyArt.Active.BindValueChanged(a =>
+            {
+                foreach (var d in InternalChildren)
+                {
+                    if (d != legacyArt)
+                        d.Alpha = a.NewValue ? 0 : 1;
+                }
+            }, true);
 
             DarkerColour = Color4Extensions.FromHex("#DE31AE");
             LighterColour = Color4Extensions.FromHex("#FF86DD");

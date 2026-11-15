@@ -19,6 +19,7 @@ using osu.Game.Input.Bindings;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Mods;
 using osu.Game.Screens.Menu;
+using osu.Game.Skinning;
 using osuTK;
 
 namespace osu.Game.Screens.Footer
@@ -52,6 +53,7 @@ namespace osu.Game.Screens.Footer
         private readonly List<OverlayContainer> overlays = new List<OverlayContainer>();
 
         private Box background = null!;
+        private StableSkinSprite legacyBar = null!;
         private FillFlowContainer<ScreenFooterButton> leftButtonsFlow = null!;
         private FillFlowContainer<ShearedButton> rightButtonsFlow = null!;
         private Container overlayContentContainer = null!;
@@ -82,6 +84,13 @@ namespace osu.Game.Screens.Footer
             receptor.OnBackPressed = () => BackButton.TriggerClick();
         }
 
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
+            legacyBar.Active.BindValueChanged(a => background.Alpha = a.NewValue ? 0 : 1, true);
+        }
+
         [BackgroundDependencyLoader]
         private void load()
         {
@@ -91,6 +100,14 @@ namespace osu.Game.Screens.Footer
                 {
                     RelativeSizeAxes = Axes.Both,
                     Colour = colourProvider.Background5
+                },
+                legacyBar = new StableSkinSprite(@"songselect-bottom")
+                {
+                    Anchor = Anchor.BottomLeft,
+                    Origin = Anchor.BottomLeft,
+                    RelativeSizeAxes = Axes.X,
+                    Height = HEIGHT,
+                    FillMode = FillMode.Stretch,
                 },
                 new GridContainer
                 {
