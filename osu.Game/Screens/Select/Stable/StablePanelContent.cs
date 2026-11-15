@@ -129,6 +129,13 @@ namespace osu.Game.Screens.Select.Stable
             applyColours();
         }
 
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+            applyKindLayout();
+            applyColours();
+        }
+
         public void SetHighlighted(bool value)
         {
             highlighted = value;

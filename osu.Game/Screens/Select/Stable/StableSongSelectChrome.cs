@@ -19,6 +19,7 @@ using osu.Game.Configuration;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Online.Leaderboards;
+using osu.Game.Rulesets.Objects.Types;
 using osu.Game.Screens.Play.Leaderboards;
 using osu.Game.Screens.Select.Filter;
 using osu.Game.Skinning;
@@ -298,9 +299,10 @@ namespace osu.Game.Screens.Select.Stable
             var length = TimeSpan.FromMilliseconds(info.Length);
             lengthText.Text = $"Length: {(int)length.TotalMinutes:00}:{length.Seconds:00} BPM: {Math.Round(info.BPM)} Objects: {working.Value.Beatmap.HitObjects.Count}";
 
-            var stats = working.Value.Beatmap.GetStatistics().ToList();
-            string find(string key) => stats.FirstOrDefault(s => s.Name.ToString().Contains(key, StringComparison.OrdinalIgnoreCase))?.Content.ToString() ?? "-";
-            countText.Text = $"Circles: {find("circle")} Sliders: {find("slider")} Spinners: {find("spinner")}";
+            var objects = working.Value.Beatmap.HitObjects;
+            int sliders = objects.Count(h => h is IHasPath);
+            int spinners = objects.Count(h => h is IHasDuration && h is not IHasPath);
+            countText.Text = $"Circles: {objects.Count - sliders - spinners} Sliders: {sliders} Spinners: {spinners}";
 
             var d = info.Difficulty;
             updateStatsLine(d, 0);
