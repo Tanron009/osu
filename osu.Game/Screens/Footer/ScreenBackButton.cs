@@ -10,6 +10,7 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Localisation;
+using osu.Game.Screens.Select.Stable;
 using osu.Game.Skinning;
 using osuTK;
 using osuTK.Graphics;
@@ -74,14 +75,58 @@ namespace osu.Game.Screens.Footer
                 Position = new Vector2(-OsuGame.SCREEN_EDGE_MARGIN, OsuGame.SCREEN_EDGE_MARGIN),
             });
 
-            legacyArt.Active.BindValueChanged(a =>
+            StableSkinSprite? layer = null;
+            Drawable? stableLabel = null;
+
+            if (StableUi.Enabled)
             {
+                // stable's default back button is a tinted layer with an arrow and text on top; skins override it via menu-back.
+                AddInternal(layer = new StableSkinSprite(@"back-button-layer")
+                {
+                    Anchor = Anchor.BottomLeft,
+                    Origin = Anchor.BottomLeft,
+                    Position = new Vector2(-OsuGame.SCREEN_EDGE_MARGIN, OsuGame.SCREEN_EDGE_MARGIN),
+                    Scale = new Vector2(StableUi.SCALE),
+                    Colour = new Color4(235, 69, 153, 255),
+                });
+
+                AddInternal(stableLabel = new FillFlowContainer
+                {
+                    Anchor = Anchor.BottomLeft,
+                    Origin = Anchor.BottomLeft,
+                    Position = new Vector2(24, -14),
+                    Direction = FillDirection.Horizontal,
+                    AutoSizeAxes = Axes.Both,
+                    Spacing = new Vector2(14, 0),
+                    Depth = -1,
+                    Children = new Drawable[]
+                    {
+                        new SpriteIcon { Anchor = Anchor.CentreLeft, Origin = Anchor.CentreLeft, Size = new Vector2(24), Icon = FontAwesome.Solid.ChevronLeft },
+                        new OsuSpriteText { Anchor = Anchor.CentreLeft, Origin = Anchor.CentreLeft, Font = OsuFont.GetFont(Typeface.Torus, 34, FontWeight.Regular), Text = "back" },
+                    }
+                });
+            }
+
+            void refreshBack()
+            {
+                bool art = legacyArt.Active.Value;
+                bool layerOn = !art && layer?.Active.Value == true;
+
                 foreach (var d in InternalChildren)
                 {
-                    if (d != legacyArt)
-                        d.Alpha = a.NewValue ? 0 : 1;
+                    if (d == legacyArt || d == layer || d == stableLabel)
+                        continue;
+
+                    d.Alpha = art || layerOn ? 0 : 1;
                 }
-            }, true);
+
+                if (layer != null) layer.Alpha = art ? 0 : 1;
+                if (stableLabel != null) stableLabel.Alpha = layerOn ? 1 : 0;
+            }
+
+            legacyArt.Active.BindValueChanged(_ => refreshBack());
+            layer?.Active.BindValueChanged(_ => refreshBack());
+            refreshBack();
 
             DarkerColour = Color4Extensions.FromHex("#DE31AE");
             LighterColour = Color4Extensions.FromHex("#FF86DD");
