@@ -82,7 +82,7 @@ namespace osu.Game.Screens.Select.Stable
 
             var colourDim = new Color4(120, 180, 230, 255);
 
-            InternalChildren = new Drawable[]
+            var content = new Drawable[]
             {
                 // stable draws this at its native size (scaled to the window), top-aligned; skins may make it taller than the default
                 // skins that ship a big selection-mode image use it as full screen decoration (stable draws it bottom right)
@@ -142,7 +142,7 @@ namespace osu.Game.Screens.Select.Stable
                     Origin = Anchor.CentreRight,
                     X = -(1920 - 1523),
                     Y = 22,
-                    Size = new Vector2(270, 34),
+                    Size = new Vector2(265, 40),
                 },
                 new OsuSpriteText
                 {
@@ -160,7 +160,7 @@ namespace osu.Game.Screens.Select.Stable
                     Origin = Anchor.CentreRight,
                     X = -16,
                     Y = 22,
-                    Size = new Vector2(268, 34),
+                    Size = new Vector2(268, 40),
                 },
                 createTabs().With(t =>
                 {
@@ -192,7 +192,7 @@ namespace osu.Game.Screens.Select.Stable
                 },
                 new Container
                 {
-                    Padding = new MarginPadding { Left = 14, Top = 196, Bottom = StableUi.FOOTER_HEIGHT },
+                    Padding = new MarginPadding { Left = 14, Top = 196, Bottom = StableUi.FOOTER_PX },
                     RelativeSizeAxes = Axes.Y,
                     Width = 570,
                     Child = leaderboard
@@ -200,10 +200,13 @@ namespace osu.Game.Screens.Select.Stable
                 new SelectorBox<BeatmapLeaderboardScope>(leaderboard.Scope, v => $"{v} Ranking")
                 {
                     X = 14,
-                    Y = 160,
-                    Size = new Vector2(430, 32),
+                    Y = 182,
+                    Size = new Vector2(430, 36),
                 },
             };
+
+            // everything in here uses screen pixels measured from stable at 1080p
+            InternalChild = new StableSpace { Children = content };
         }
 
         private void updateModeArt()
@@ -391,7 +394,7 @@ namespace osu.Game.Screens.Select.Stable
         }
 
         /// <summary>
-        /// A stable-looking dropdown. Clicking cycles through the available values (right click goes back).
+        /// A stable-looking dropdown: black box with chevron, clicking opens a list of all values.
         /// </summary>
         private partial class SelectorBox<T> : CompositeDrawable
             where T : struct, Enum
@@ -399,6 +402,8 @@ namespace osu.Game.Screens.Select.Stable
             private readonly Bindable<T> current;
             private readonly Func<T, string> name;
             private OsuSpriteText label = null!;
+            private FillFlowContainer list = null!;
+            private bool open;
 
             public SelectorBox(Bindable<T> current, Func<T, string> name)
             {
@@ -406,33 +411,61 @@ namespace osu.Game.Screens.Select.Stable
                 this.name = name;
             }
 
+            public override bool AcceptsFocus => open;
+
+            public override bool ReceivePositionalInputAt(Vector2 screenSpacePos)
+                => base.ReceivePositionalInputAt(screenSpacePos) || (open && list.ReceivePositionalInputAt(screenSpacePos));
+
             [BackgroundDependencyLoader]
             private void load()
             {
-                Masking = true;
-                CornerRadius = 6;
-                BorderThickness = 2;
-                BorderColour = new Color4(210, 210, 210, 255);
-
                 InternalChildren = new Drawable[]
                 {
-                    new Box { RelativeSizeAxes = Axes.Both, Colour = Color4.Black },
-                    label = new OsuSpriteText
+                    new Container
                     {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        X = 8,
-                        Font = OsuFont.GetFont(Typeface.Torus, 28, FontWeight.Regular),
+                        RelativeSizeAxes = Axes.Both,
+                        Masking = true,
+                        CornerRadius = 5,
+                        BorderThickness = 2,
+                        BorderColour = new Color4(210, 210, 210, 255),
+                        Children = new Drawable[]
+                        {
+                            new Box { RelativeSizeAxes = Axes.Both, Colour = Color4.Black },
+                            label = new OsuSpriteText
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                X = 10,
+                                Font = OsuFont.GetFont(Typeface.Torus, 26, FontWeight.Regular),
+                            },
+                            new SpriteIcon
+                            {
+                                Anchor = Anchor.CentreRight,
+                                Origin = Anchor.CentreRight,
+                                X = -10,
+                                Size = new Vector2(18),
+                                Icon = FontAwesome.Solid.ChevronDown,
+                            },
+                        }
                     },
-                    new SpriteIcon
+                    list = new FillFlowContainer
                     {
-                        Anchor = Anchor.CentreRight,
-                        Origin = Anchor.CentreRight,
-                        X = -10,
-                        Size = new Vector2(20),
-                        Icon = FontAwesome.Solid.ChevronDown,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Direction = FillDirection.Vertical,
+                        Anchor = Anchor.BottomLeft,
+                        Origin = Anchor.TopLeft,
+                        Y = 2,
+                        Alpha = 0,
+                        Masking = true,
+                        CornerRadius = 5,
+                        BorderThickness = 2,
+                        BorderColour = new Color4(210, 210, 210, 255),
                     },
                 };
+
+                foreach (var value in Enum.GetValues<T>())
+                    list.Add(new Row(name(value), () => select(value)));
             }
 
             protected override void LoadComplete()
@@ -441,28 +474,76 @@ namespace osu.Game.Screens.Select.Stable
                 current.BindValueChanged(c => label.Text = name(c.NewValue), true);
             }
 
+            private void select(T value)
+            {
+                current.Value = value;
+                setOpen(false);
+            }
+
+            private void setOpen(bool value)
+            {
+                open = value;
+                list.Alpha = value ? 1 : 0;
+
+                if (value)
+                    GetContainingFocusManager()?.ChangeFocus(this);
+                else if (HasFocus)
+                    GetContainingFocusManager()?.ChangeFocus(null);
+            }
+
+            protected override void OnFocusLost(FocusLostEvent e)
+            {
+                base.OnFocusLost(e);
+                open = false;
+                list.Alpha = 0;
+            }
+
             protected override bool OnClick(ClickEvent e)
             {
-                step(1);
+                setOpen(!open);
                 return true;
             }
 
-            protected override bool OnMouseDown(MouseDownEvent e)
+            private partial class Row : Container
             {
-                if (e.Button == osuTK.Input.MouseButton.Right)
+                private readonly Action action;
+                private readonly Box hover;
+
+                public Row(string text, Action action)
                 {
-                    step(-1);
+                    this.action = action;
+
+                    RelativeSizeAxes = Axes.X;
+                    Height = 38;
+
+                    Children = new Drawable[]
+                    {
+                        new Box { RelativeSizeAxes = Axes.Both, Colour = Color4.Black },
+                        hover = new Box { RelativeSizeAxes = Axes.Both, Colour = new Color4(255, 102, 170, 255), Alpha = 0 },
+                        new OsuSpriteText
+                        {
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                            X = 10,
+                            Text = text,
+                            Font = OsuFont.GetFont(Typeface.Torus, 24, FontWeight.Regular),
+                        },
+                    };
+                }
+
+                protected override bool OnHover(HoverEvent e)
+                {
+                    hover.FadeTo(0.8f, 60);
                     return true;
                 }
 
-                return base.OnMouseDown(e);
-            }
+                protected override void OnHoverLost(HoverLostEvent e) => hover.FadeOut(60);
 
-            private void step(int delta)
-            {
-                var values = Enum.GetValues<T>();
-                int index = Array.IndexOf(values, current.Value);
-                current.Value = values[(index + delta + values.Length) % values.Length];
+                protected override bool OnClick(ClickEvent e)
+                {
+                    action();
+                    return true;
+                }
             }
         }
     }

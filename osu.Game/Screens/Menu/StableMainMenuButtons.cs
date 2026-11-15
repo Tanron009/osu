@@ -20,6 +20,7 @@ namespace osu.Game.Screens.Menu
     public partial class StableMainMenuButtons : Container
     {
         private readonly ButtonSystem buttons;
+        private StableSpace space = null!;
 
         public StableMainMenuButtons(ButtonSystem buttons)
         {
@@ -42,13 +43,16 @@ namespace osu.Game.Screens.Menu
                 () => buttons.OnExit?.Invoke(new ClickEvent(new osu.Framework.Input.States.InputState(), osuTK.Input.MouseButton.Left, Vector2.Zero)),
             };
 
+            space = new StableSpace();
+            AddInternal(space);
+
             // measured from osu!stable: right edge / vertical centre of each button (1920x1080)
             float[] rightEdges = { 1530, 1548, 1548, 1530 };
             float[] centresY = { 339, 484, 631, 777 };
 
             for (int i = 0; i < names.Length; i++)
             {
-                Add(new StableButton(names[i], actions[i])
+                space.Add(new StableButton(names[i], actions[i])
                 {
                     Anchor = Anchor.CentreLeft,
                     Origin = Anchor.CentreRight,
@@ -69,7 +73,7 @@ namespace osu.Game.Screens.Menu
             {
                 int i = 0;
 
-                foreach (var b in Children.OfType<StableButton>())
+                foreach (var b in space.Children.OfType<StableButton>())
                     b.SlideTo(s != ButtonSystemState.Initial && s != ButtonSystemState.Exit, i++);
             });
         }
@@ -97,7 +101,7 @@ namespace osu.Game.Screens.Menu
             private void load()
             {
                 AutoSizeAxes = Axes.Both;
-                Scale = Vector2.One;
+                Scale = new Vector2(StableUi.SCALE);
                 Alpha = 0;
 
                 AddRange(new Drawable[]
