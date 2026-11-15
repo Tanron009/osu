@@ -42,6 +42,7 @@ namespace osu.Game.Screens.Menu
         public static readonly Vector2 SCALE_ADJUST = new Vector2(0.94f);
 
         private readonly Sprite logo;
+        private readonly Skinning.StableSkinSprite skinLogo;
         private readonly CircularContainer logoContainer;
         private readonly Container logoBounceContainer;
         private readonly Container logoBeatContainer;
@@ -216,6 +217,11 @@ namespace osu.Game.Screens.Menu
                                                             Anchor = Anchor.Centre,
                                                             Origin = Anchor.Centre,
                                                         },
+                                                        skinLogo = new Skinning.StableSkinSprite(@"menu-osu")
+                                                        {
+                                                            Anchor = Anchor.Centre,
+                                                            Origin = Anchor.Centre,
+                                                        },
                                                     }
                                                 },
                                                 impactContainer = new CircularContainer
@@ -364,6 +370,19 @@ namespace osu.Game.Screens.Menu
         protected override void Update()
         {
             base.Update();
+
+            // osu!stable: the skin's menu-osu replaces the logo artwork
+            if (Screens.Select.Stable.StableUi.Enabled && skinLogo.FromSkin)
+            {
+                logo.Alpha = 0;
+                skinLogo.Alpha = 1;
+                skinLogo.Size = logo.DrawSize;
+            }
+            else
+            {
+                logo.Alpha = 1;
+                skinLogo.Alpha = 0;
+            }
 
             const float scale_adjust_cutoff = 0.4f;
 

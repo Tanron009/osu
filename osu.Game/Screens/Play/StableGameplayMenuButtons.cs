@@ -96,7 +96,6 @@ namespace osu.Game.Screens.Play
             [BackgroundDependencyLoader]
             private void load()
             {
-                AutoSizeAxes = Axes.Both;
                 Origin = Anchor.TopCentre;
                 Anchor = Anchor.TopCentre;
 
