@@ -535,7 +535,7 @@ namespace osu.Game
         {
             try
             {
-                ResourceStore<byte[]>? store = null;
+                ResourceStore<byte[]> store = null;
 
                 if (Storage.ExistsDirectory(@"stable-assets/Fonts"))
                     store = new StablePageAliasStore(new StorageBackedResourceStore(Storage.GetStorageForDirectory(@"stable-assets/Fonts")));
