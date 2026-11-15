@@ -22,7 +22,12 @@ using osu.Game.Online.Leaderboards;
 using osu.Game.Rulesets.Objects.Types;
 using osu.Game.Screens.Play.Leaderboards;
 using osu.Game.Screens.Select.Filter;
+using osu.Game.Online;
+using osu.Game.Online.API;
+using osu.Game.Online.API.Requests.Responses;
+using osu.Game.Rulesets;
 using osu.Game.Screens.Footer;
+using osu.Game.Users.Drawables;
 using osu.Game.Skinning;
 using osuTK;
 using osuTK.Graphics;
@@ -69,6 +74,19 @@ namespace osu.Game.Screens.Select.Stable
         private StableSkinSprite modeArt = null!;
         private Drawable[] content = null!;
         private Container? footerArtLayer;
+        private Container? profileStats;
+        private OsuSpriteText performanceText = null!;
+        private OsuSpriteText accuracyText = null!;
+        private UpdateableAvatar avatar = null!;
+
+        [Resolved]
+        private IAPIProvider api { get; set; } = null!;
+
+        [Resolved]
+        private LocalUserStatisticsProvider statisticsProvider { get; set; } = null!;
+
+        [Resolved]
+        private IBindable<RulesetInfo> ruleset { get; set; } = null!;
 
         [Resolved(CanBeNull = true)]
         private ScreenFooter? footer { get; set; }
@@ -216,6 +234,14 @@ namespace osu.Game.Screens.Select.Stable
             InternalChild = new StableSpace { Children = content };
         }
 
+        private void updateProfile(APIUser user)
+        {
+            avatar.User = user;
+            var stats = statisticsProvider.GetStatisticsFor(ruleset.Value);
+            performanceText.Text = stats?.PP != null ? $"Performance:{stats.PP:N0}pp" : "Performance:0pp";
+            accuracyText.Text = stats != null ? $"Accuracy:{stats.Accuracy:0.00}%" : "Accuracy:0.00%";
+        }
+
         private void updateModeArt()
         {
             bool big = modeArt.FromSkin && modeArt.Texture != null && modeArt.Texture.DisplayWidth > 600;
@@ -231,7 +257,12 @@ namespace osu.Game.Screens.Select.Stable
             StableUi.HideLogo = false;
 
             if (footerArtLayer != null && modeArt != null)
+            {
                 footerArtLayer.Remove(modeArt, false);
+
+                if (profileStats != null)
+                    footerArtLayer.Remove(profileStats, false);
+            }
 
             base.Dispose(isDisposing);
         }
@@ -240,10 +271,31 @@ namespace osu.Game.Screens.Select.Stable
         {
             base.LoadComplete();
 
+            profileStats = new Container
+            {
+                Children = new Drawable[]
+                {
+                    // measured positions on stable's bottom bar (1080p, relative to the bar's top edge at y=966)
+                    avatar = new UpdateableAvatar(isInteractive: false)
+                    {
+                        Size = new Vector2(56),
+                        Position = new Vector2(909, 36),
+                        Masking = true,
+                        CornerRadius = 28,
+                    },
+                    performanceText = new OsuSpriteText { Position = new Vector2(980, 38), Font = StableUi.GetFont(22, FontWeight.Regular) },
+                    accuracyText = new OsuSpriteText { Position = new Vector2(980, 62), Font = StableUi.GetFont(22, FontWeight.Regular) },
+                }
+            };
+
+            api.LocalUser.BindValueChanged(u => updateProfile(u.NewValue), true);
+            statisticsProvider.StatisticsUpdated += _ => Schedule(() => updateProfile(api.LocalUser.Value));
+
             if (footer != null)
             {
                 footerArtLayer = footer.StableArtLayer;
                 footerArtLayer.Add(modeArt);
+                footerArtLayer.Add(profileStats);
             }
             else
                 ((StableSpace)InternalChild).Add(modeArt);
@@ -380,6 +432,7 @@ namespace osu.Game.Screens.Select.Stable
             var d = info.Difficulty;
             updateStatsLine(d, 0);
 
+            calculationText.Text = "Difficulty calculation in progress...";
             starCancellation = new CancellationTokenSource();
             starBindable = difficultyCache.GetBindableDifficulty(info, starCancellation.Token, SongSelect.DIFFICULTY_CALCULATION_DEBOUNCE);
             starBindable.BindValueChanged(s =>
