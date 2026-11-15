@@ -21,6 +21,8 @@ using osu.Framework.Graphics.Pooling;
 using osu.Framework.Localisation;
 using osu.Framework.Threading;
 using osu.Framework.Utils;
+using osuTK;
+using osu.Game.Screens.Select.Stable;
 using osu.Game.Beatmaps;
 using osu.Game.Collections;
 using osu.Game.Configuration;
@@ -774,6 +776,15 @@ namespace osu.Game.Screens.Select
 
         protected override float GetPanelXOffset(Drawable panel)
         {
+            if (StableUi.Enabled)
+            {
+                // measured from stable at 1080p: panels shift right by roughly 0.13px per px of distance from the focused panel (nearly linear, not lazer's circle)
+                float focusY = ToScreenSpace(new Vector2(0, DrawHeight / 2f)).Y;
+                float dy = Math.Abs(panel.ScreenSpaceDrawQuad.Centre.Y - focusY);
+                float px = StableUi.PxPerUnit;
+                return 0.13f * dy / px;
+            }
+
             return base.GetPanelXOffset(panel) + (((ICarouselPanel)panel).Selected.Value ? 0 : selectionFocusOffset);
         }
 

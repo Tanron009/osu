@@ -58,6 +58,8 @@ namespace osu.Game.Screens.Select.Stable
             Group,
         }
 
+        private Container? border;
+
         public StablePanelContent()
         {
             RelativeSizeAxes = Axes.Both;
@@ -138,6 +140,15 @@ namespace osu.Game.Screens.Select.Stable
             var content = InternalChildren.ToArray();
             ClearInternal(false);
             AddInternal(new StableSpace { Children = content });
+            AddInternal(border = new Container
+            {
+                RelativeSizeAxes = Axes.Both,
+                Masking = true,
+                BorderThickness = 3,
+                BorderColour = new Color4(235, 70, 100, 255),
+                Alpha = 0,
+                Child = new Box { RelativeSizeAxes = Axes.Both, Alpha = 0, AlwaysPresent = true },
+            });
 
             applyKindLayout();
             applyColours();
@@ -153,9 +164,25 @@ namespace osu.Game.Screens.Select.Stable
         // selected panels are tinted light grey; dark text only makes sense on stable's own (light) art, skins usually draw dark panels
         private bool highlightDark => highlighted && !bodyArt.FromSkin;
 
+        private bool hovered;
+
+        /// <summary>stable outlines the hovered panel in red.</summary>
+        public void SetHovered(bool value)
+        {
+            hovered = value;
+            updateBorder();
+        }
+
+        private void updateBorder()
+        {
+            if (border != null)
+                border.FadeTo(hovered ? 1f : highlighted ? 0.6f : 0f, 120, Easing.OutQuint);
+        }
+
         public void SetHighlighted(bool value)
         {
             highlighted = value;
+            updateBorder();
 
             if (IsLoaded)
                 applyColours();

@@ -429,12 +429,14 @@ namespace osu.Game.Screens.Select
 
         protected override bool OnHover(HoverEvent e)
         {
+            stableContent?.SetHovered(true);
             hoverLayer.FadeIn(100, Easing.OutQuint);
             return true;
         }
 
         protected override void OnHoverLost(HoverLostEvent e)
         {
+            stableContent?.SetHovered(false);
             hoverLayer.FadeOut(1000, Easing.OutQuint);
             base.OnHoverLost(e);
         }
