@@ -11,6 +11,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Graphics.Sprites;
+using osu.Game.Skinning;
 using osuTK;
 using osuTK.Graphics;
 using osuTK.Input;
@@ -65,6 +66,9 @@ namespace osu.Game.Screens.Menu
 
         private readonly Action<MainMenuButton, UIEvent>? clickAction;
 
+        private readonly Color4 buttonColour;
+        private StableSkinSprite? legacyBackground;
+
         private readonly Container background;
         private readonly Drawable backgroundContent;
         private readonly Box boxHoverLayer;
@@ -87,6 +91,7 @@ namespace osu.Game.Screens.Menu
         {
             this.sampleName = sampleName;
             this.clickAction = clickAction;
+            buttonColour = colour;
             TriggerKeys = triggerKeys;
 
             AutoSizeAxes = Axes.Both;
@@ -186,6 +191,18 @@ namespace osu.Game.Screens.Menu
             // (which can exceed the [0;1] range during interpolation).
             backgroundContent.Width = 2 * initialSize.X;
             backgroundContent.Shear = -background.Shear;
+
+            // osu!stable UI: use the skin's menu button art in place of the flat colour fill, when available.
+            background.Add(legacyBackground = new StableSkinSprite(@"menu-button-background")
+            {
+                RelativeSizeAxes = Axes.Y,
+                Width = 2 * initialSize.X,
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                Shear = -background.Shear,
+                Colour = buttonColour,
+            });
+            legacyBackground.Active.BindValueChanged(a => backgroundContent.Alpha = a.NewValue ? 0 : 1, true);
 
             animateState();
             FinishTransforms(true);
