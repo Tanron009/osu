@@ -63,6 +63,7 @@ using osu.Game.Resources;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
+using osu.Game.Screens.Select.Stable;
 using osu.Game.Skinning;
 using osu.Game.Utils;
 using RuntimeInfo = osu.Framework.RuntimeInfo;
@@ -298,6 +299,8 @@ namespace osu.Game
             dependencies.Cache(onlineAssetStore = new OnlineAssetCachingStore(Host, realm));
 
             dependencies.CacheAs(LocalConfig);
+
+            StableUi.Enabled = LocalConfig.Get<bool>(OsuSetting.UseStableUI) && Storage.ExistsDirectory("stable-assets");
             dependencies.CacheAs<IGameplaySettings>(LocalConfig);
 
             InitialiseFonts();

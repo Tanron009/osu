@@ -29,11 +29,13 @@ using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osuTK;
 
+using osu.Game.Screens.Select.Stable;
+
 namespace osu.Game.Screens.Select
 {
     public partial class PanelBeatmap : Panel
     {
-        public const float HEIGHT = CarouselItem.DEFAULT_HEIGHT;
+        public static float HEIGHT => StableUi.Enabled ? StableUi.PANEL_HEIGHT : CarouselItem.DEFAULT_HEIGHT;
 
         private StarCounter starCounter = null!;
         private ConstrainedIconContainer difficultyIcon = null!;

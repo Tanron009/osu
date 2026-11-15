@@ -32,11 +32,13 @@ using osuTK;
 using osuTK.Graphics;
 using WebCommonStrings = osu.Game.Resources.Localisation.Web.CommonStrings;
 
+using osu.Game.Screens.Select.Stable;
+
 namespace osu.Game.Screens.Select
 {
     public partial class PanelBeatmapSet : Panel
     {
-        public const float HEIGHT = CarouselItem.DEFAULT_HEIGHT * 1.6f;
+        public static float HEIGHT => StableUi.Enabled ? StableUi.PANEL_HEIGHT : CarouselItem.DEFAULT_HEIGHT * 1.6f;
 
         public Bindable<HashSet<BeatmapInfo>?> VisibleBeatmaps { get; } = new Bindable<HashSet<BeatmapInfo>?>();
 
