@@ -242,7 +242,7 @@ namespace osu.Game.Screens.Menu
             if (Screens.Select.Stable.StableUi.Enabled)
             {
                 // keep lazer's button logic alive (logo/state handling) but draw stable's buttons instead
-                foreach (var b in Buttons.InternalChildren)
+                foreach (var b in Buttons.Children)
                     b.Alpha = 0;
 
                 AddInternal(new StableMainMenuButtons(Buttons));
