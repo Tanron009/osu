@@ -6,6 +6,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Input.Events;
+using System.Linq;
 using osu.Game.Screens.Select.Stable;
 using osu.Game.Skinning;
 using osuTK;
@@ -56,7 +57,15 @@ namespace osu.Game.Screens.Menu
         protected override void LoadComplete()
         {
             base.LoadComplete();
-            buttons.StateChanged += s => Schedule(() => this.FadeTo(s == ButtonSystemState.Initial ? 0 : 1, 200));
+            Alpha = 1;
+
+            buttons.StateChanged += s => Schedule(() =>
+            {
+                int i = 0;
+
+                foreach (var b in Children.OfType<StableButton>())
+                    b.SlideTo(s != ButtonSystemState.Initial && s != ButtonSystemState.Exit, i++);
+            });
         }
 
         private partial class StableButton : Container
@@ -65,6 +74,11 @@ namespace osu.Game.Screens.Menu
             private readonly Action? action;
             private StableSkinSprite normal = null!;
             private StableSkinSprite over = null!;
+
+            [Resolved]
+            private ISkinSource skin { get; set; } = null!;
+
+            private const float offscreen_x = 900;
 
             public StableButton(string name, Action? action)
             {
@@ -77,6 +91,7 @@ namespace osu.Game.Screens.Menu
             {
                 AutoSizeAxes = Axes.Both;
                 Scale = new Vector2(StableUi.SCALE * 0.5f);
+                X = offscreen_x;
 
                 AddRange(new Drawable[]
                 {
@@ -85,21 +100,50 @@ namespace osu.Game.Screens.Menu
                 });
             }
 
+            private bool shown;
+
+            /// <summary>
+            /// stable slides the buttons out from behind the logo one after another (and back when the menu closes).
+            /// </summary>
+            public void SlideTo(bool show, int index)
+            {
+                shown = show;
+                this.Delay(index * 60).MoveToX(show ? 0 : offscreen_x, show ? 400 : 250, show ? Easing.OutQuint : Easing.InQuint);
+            }
+
             protected override bool OnHover(HoverEvent e)
             {
+                if (!shown)
+                    return false;
+
+                // stable pulls the hovered button towards the middle of the screen
+                this.MoveToX(-30, 150, Easing.OutQuint);
                 over.FadeTo(1, 100);
                 normal.FadeTo(0, 100);
+
+                if (!StableUi.PlaySkinSample(skin, $@"menu-{name}-hover"))
+                    StableUi.PlaySkinSample(skin, StableUi.HoverSampleName);
+
                 return true;
             }
 
             protected override void OnHoverLost(HoverLostEvent e)
             {
+                if (shown)
+                    this.MoveToX(0, 250, Easing.OutQuint);
+
                 over.FadeTo(0, 100);
                 normal.FadeTo(1, 100);
             }
 
             protected override bool OnClick(ClickEvent e)
             {
+                if (!shown)
+                    return false;
+
+                if (!StableUi.PlaySkinSample(skin, $@"menu-{name}-click"))
+                    StableUi.PlaySkinSample(skin, StableUi.ClickSampleName);
+
                 action?.Invoke();
                 return true;
             }
