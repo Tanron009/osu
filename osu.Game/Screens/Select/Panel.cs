@@ -20,6 +20,7 @@ using osu.Game.Graphics.Carousel;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
+using osu.Game.Skinning;
 using osuTK;
 using osuTK.Graphics;
 
@@ -36,6 +37,7 @@ namespace osu.Game.Screens.Select
         protected float PanelXOffset { get; init; }
 
         private Container backgroundContainer = null!;
+        private StableSkinSprite legacyBackground = null!;
         private Container iconContainer = null!;
 
         private Drawable activationFlash = null!;
@@ -116,6 +118,11 @@ namespace osu.Game.Screens.Select
                     {
                         RelativeSizeAxes = Axes.Both,
                     },
+                    // osu!stable UI: skin-provided panel art, tinted by the accent (difficulty) colour.
+                    legacyBackground = new StableSkinSprite(@"menu-button-background")
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                    },
                     iconContainer = new Container
                     {
                         Anchor = Anchor.CentreLeft,
@@ -165,6 +172,8 @@ namespace osu.Game.Screens.Select
                     new HoverSounds(),
                 }
             };
+
+            legacyBackground.Active.BindValueChanged(a => backgroundContainer.Alpha = a.NewValue ? 0 : 1, true);
         }
 
         public partial class PulsatingBox : BeatSyncedContainer
@@ -322,6 +331,8 @@ namespace osu.Game.Screens.Select
         private void updateAccentColour()
         {
             var backgroundColour = accentColour ?? Color4.White;
+
+            legacyBackground.Colour = backgroundColour;
 
             selectionLayer.Colour = ColourInfo.GradientHorizontal(backgroundColour.Opacity(0), backgroundColour.Opacity(0.5f));
 

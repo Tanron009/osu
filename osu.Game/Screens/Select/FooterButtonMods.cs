@@ -36,6 +36,10 @@ namespace osu.Game.Screens.Select
 {
     public partial class FooterButtonMods : ScreenFooterButton
     {
+        protected override string? LegacyTextureName => @"selection-mods";
+
+        protected override bool KeepTextWithLegacyArt => true;
+
         public Action? RequestDeselectAllMods { get; init; }
 
         public const float BAR_HEIGHT = 30f;

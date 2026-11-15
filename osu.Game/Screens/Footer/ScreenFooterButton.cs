@@ -19,6 +19,7 @@ using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Input.Bindings;
 using osu.Game.Overlays;
+using osu.Game.Skinning;
 using osuTK;
 using osuTK.Graphics;
 
@@ -97,6 +98,20 @@ namespace osu.Game.Screens.Footer
         private readonly Box flashLayer;
 
         public readonly OverlayContainer? Overlay;
+
+        /// <summary>
+        /// Name of a legacy skin texture (e.g. <c>selection-mods</c>) to display in place of the default visuals when "Use osu!stable UI" is enabled.
+        /// A matching <c>-over</c> texture is used while hovered.
+        /// </summary>
+        protected virtual string? LegacyTextureName => null;
+
+        /// <summary>
+        /// Whether the text content should stay visible on top of the legacy texture (for buttons that show live state).
+        /// </summary>
+        protected virtual bool KeepTextWithLegacyArt => false;
+
+        private StableSkinSprite? legacyArt;
+        private StableSkinSprite? legacyArtOver;
 
         public ScreenFooterButton(OverlayContainer? overlay = null)
         {
@@ -190,6 +205,29 @@ namespace osu.Game.Screens.Footer
         {
             base.LoadComplete();
 
+            if (LegacyTextureName != null)
+            {
+                AddInternal(legacyArt = new StableSkinSprite(LegacyTextureName)
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    FillMode = FillMode.Fit,
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    Depth = 1,
+                });
+                AddInternal(legacyArtOver = new StableSkinSprite(LegacyTextureName + @"-over")
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    FillMode = FillMode.Fit,
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    Depth = 1,
+                });
+
+                legacyArt.Active.BindValueChanged(_ => updateLegacyArt());
+                legacyArtOver.Active.BindValueChanged(_ => updateLegacyArt());
+            }
+
             if (Overlay != null)
                 OverlayState.BindTo(Overlay.State);
 
@@ -253,6 +291,31 @@ namespace osu.Game.Screens.Footer
             bar.FadeColour(accentColour, 150, Easing.OutQuint);
 
             glowBox.FadeColour(ColourInfo.GradientVertical(buttonAccentColour.Opacity(0f), buttonAccentColour.Opacity(0.2f)), 150, Easing.OutQuint);
+
+            updateLegacyArt();
+        }
+
+        private void updateLegacyArt()
+        {
+            if (legacyArt == null || legacyArtOver == null)
+                return;
+
+            bool active = legacyArt.Active.Value;
+            bool showOver = active && IsHovered && Enabled.Value && legacyArtOver.Active.Value;
+
+            legacyArt.Alpha = active && !showOver ? 1 : 0;
+            legacyArtOver.Alpha = showOver ? 1 : 0;
+
+            if (KeepTextWithLegacyArt)
+            {
+                float alpha = active ? 0 : 1;
+                backgroundBox.Alpha = alpha;
+                glowBox.Alpha = alpha;
+                bar.Alpha = alpha;
+                icon.Alpha = alpha;
+            }
+            else
+                shearedContent.Alpha = active ? 0 : 1;
         }
 
         public void AppearFromLeft(double delay)

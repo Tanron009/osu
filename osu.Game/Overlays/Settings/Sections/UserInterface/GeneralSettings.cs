@@ -23,7 +23,7 @@ namespace osu.Game.Overlays.Settings.Sections.UserInterface
                 new SettingsItemV2(new FormCheckBox
                 {
                     Caption = "Use osu!stable UI",
-                    HintText = "Shows osu!stable-style screens (and skin elements) where supported. Currently affects: the results screen.",
+                    HintText = "Uses osu!stable-style art from your skin on the main menu buttons, song select panels and footer buttons, and shows the stable-style results screen. Restart after changing.",
                     Current = config.GetBindable<bool>(OsuSetting.UseStableUI)
                 })
                 {
