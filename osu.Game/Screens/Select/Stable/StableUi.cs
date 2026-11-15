@@ -16,6 +16,9 @@ namespace osu.Game.Screens.Select.Stable
     {
         public static bool Enabled { get; set; }
 
+        /// <summary>Set while a skin's full-screen song select art replaces the osu! logo in the bottom right.</summary>
+        public static bool HideLogo { get; set; }
+
         /// <summary>stable's main menu: logo position (fraction of screen width) and scale while the buttons are showing.</summary>
         public const float MENU_LOGO_X = 695f / 1920f;
 

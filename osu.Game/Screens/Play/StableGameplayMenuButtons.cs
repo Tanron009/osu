@@ -32,14 +32,12 @@ namespace osu.Game.Screens.Play
         [BackgroundDependencyLoader]
         private void load()
         {
-            var flow = new FillFlowContainer
+            var flow = new Container
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                AutoSizeAxes = Axes.Both,
-                Direction = FillDirection.Vertical,
-                Spacing = Vector2.Zero,
+                RelativeSizeAxes = Axes.Both,
             };
+
+            int index = 0;
 
             foreach (var b in buttons)
             {
@@ -61,7 +59,14 @@ namespace osu.Game.Screens.Play
                     click = @"pause-back-click";
                 }
 
-                flow.Add(new StableButton(name, click, b));
+                // stable spreads the three images over the screen height (quarter / half / three quarters)
+                flow.Add(new StableButton(name, click, b)
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativePositionAxes = Axes.Y,
+                    Y = (index++ - 1) * 0.25f,
+                });
             }
 
             AddRange(new Drawable[]
@@ -96,9 +101,6 @@ namespace osu.Game.Screens.Play
             [BackgroundDependencyLoader]
             private void load()
             {
-                Origin = Anchor.TopCentre;
-                Anchor = Anchor.TopCentre;
-
                 Child = sprite = new StableSkinSprite(textureName)
                 {
                     Scale = new Vector2(StableUi.SCALE),

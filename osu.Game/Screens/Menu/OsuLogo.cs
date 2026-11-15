@@ -371,6 +371,9 @@ namespace osu.Game.Screens.Menu
         {
             base.Update();
 
+            // the skinned song select art already contains a logo spot; keep the real one (almost) invisible but clickable
+            logoBounceContainer.Alpha = Screens.Select.Stable.StableUi.HideLogo ? 0.001f : 1;
+
             // osu!stable: the skin's menu-osu replaces the logo artwork
             if (Screens.Select.Stable.StableUi.Enabled && skinLogo.FromSkin)
             {
