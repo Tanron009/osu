@@ -76,7 +76,7 @@ namespace osu.Game.Screens.Select.Stable
                     Anchor = Anchor.TopLeft,
                     Origin = Anchor.TopLeft,
                     Position = new Vector2(20, 40),
-                    Font = OsuFont.GetFont(Typeface.Torus, 30),
+                    Font = StableUi.GetFont(30),
                 }
             };
         }
@@ -221,12 +221,12 @@ namespace osu.Game.Screens.Select.Stable
                             new OsuSpriteText
                             {
                                 Text = score.User.Username,
-                                Font = OsuFont.GetFont(Typeface.Torus, 30, FontWeight.Regular),
+                                Font = StableUi.GetFont(30, FontWeight.Regular),
                             },
                             new OsuSpriteText
                             {
                                 Text = $"Score: {score.TotalScore:N0} ({score.MaxCombo:N0}x)",
-                                Font = OsuFont.GetFont(Typeface.Torus, 24, FontWeight.Regular),
+                                Font = StableUi.GetFont(24, FontWeight.Regular),
                             },
                         }
                     },
@@ -244,14 +244,14 @@ namespace osu.Game.Screens.Select.Stable
                                 Anchor = Anchor.TopRight,
                                 Origin = Anchor.TopRight,
                                 Text = $"{score.Accuracy * 100:0.00}%",
-                                Font = OsuFont.GetFont(Typeface.Torus, 24, FontWeight.Regular),
+                                Font = StableUi.GetFont(24, FontWeight.Regular),
                             },
                             new OsuSpriteText
                             {
                                 Anchor = Anchor.TopRight,
                                 Origin = Anchor.TopRight,
                                 Text = score.PP is double pp ? $"{pp:N0}pp" : (previousScore > 0 ? $"+{previousScore - score.TotalScore:N0}" : string.Empty),
-                                Font = OsuFont.GetFont(Typeface.Torus, 22, FontWeight.Regular),
+                                Font = StableUi.GetFont(22, FontWeight.Regular),
                             },
                         }
                     },

@@ -102,17 +102,17 @@ namespace osu.Game.Screens.Select.Stable
                     {
                         titleText = new TruncatingSpriteText
                         {
-                            Font = OsuFont.GetFont(Typeface.Torus, 30, FontWeight.Regular),
+                            Font = StableUi.GetFont(30, FontWeight.Regular),
                                                         RelativeSizeAxes = Axes.X,
                         },
                         artistText = new TruncatingSpriteText
                         {
-                            Font = OsuFont.GetFont(Typeface.Torus, 24, FontWeight.Regular),
+                            Font = StableUi.GetFont(24, FontWeight.Regular),
                                                         RelativeSizeAxes = Axes.X,
                         },
                         difficultyText = new TruncatingSpriteText
                         {
-                            Font = OsuFont.GetFont(Typeface.Torus, 26, FontWeight.Bold),
+                            Font = StableUi.GetFont(26, FontWeight.Bold),
                                                         RelativeSizeAxes = Axes.X,
                         },
                         starsFlow = new FillFlowContainer
@@ -129,7 +129,7 @@ namespace osu.Game.Screens.Select.Stable
                     Anchor = Anchor.CentreLeft,
                     Origin = Anchor.CentreLeft,
                     X = 20,
-                    Font = OsuFont.GetFont(Typeface.Torus, 32, FontWeight.Bold),
+                    Font = StableUi.GetFont(32, FontWeight.Bold),
                     Alpha = 0,
                 },
             };
@@ -267,7 +267,7 @@ namespace osu.Game.Screens.Select.Stable
             difficultyText.Colour = text;
             groupText.Colour = Color4.White;
 
-            titleText.Font = OsuFont.GetFont(Typeface.Torus, 30, kind == PanelKind.Set && !darkText ? FontWeight.SemiBold : FontWeight.Regular);
+            titleText.Font = StableUi.GetFont(30, kind == PanelKind.Set && !darkText ? FontWeight.SemiBold : FontWeight.Regular);
 
             rebuildStars();
         }

@@ -102,7 +102,7 @@ namespace osu.Game.Screens.Footer
                     Children = new Drawable[]
                     {
                         new SpriteIcon { Anchor = Anchor.CentreLeft, Origin = Anchor.CentreLeft, Size = new Vector2(24), Icon = FontAwesome.Solid.ChevronLeft },
-                        new OsuSpriteText { Anchor = Anchor.CentreLeft, Origin = Anchor.CentreLeft, Font = OsuFont.GetFont(Typeface.Torus, 34, FontWeight.Regular), Text = "back" },
+                        new OsuSpriteText { Anchor = Anchor.CentreLeft, Origin = Anchor.CentreLeft, Font = StableUi.GetFont(34, FontWeight.Regular), Text = "back" },
                     }
                 });
             }

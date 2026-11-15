@@ -58,6 +58,9 @@ namespace osu.Game.Screens.Footer
         private FillFlowContainer<ScreenFooterButton> leftButtonsFlow = null!;
         private FillFlowContainer<ShearedButton> rightButtonsFlow = null!;
         private Container overlayContentContainer = null!;
+
+        /// <summary>Pixel-space layer (see <see cref="StableSpace"/> children) drawn over the bar and under the buttons when the stable UI is enabled.</summary>
+        public Container StableArtLayer { get; private set; } = null!;
         private Container<ScreenFooterButton> hiddenLeftButtonsContainer = null!;
         private Container<ShearedButton> hiddenRightButtonsContainer = null!;
 
@@ -139,6 +142,8 @@ namespace osu.Game.Screens.Footer
                     Height = HEIGHT,
                     FillMode = FillMode.Stretch,
                 },
+                // stable draws the skin's selection-mode art above the bar but below the buttons
+                new StableSpace { Child = StableArtLayer = new Container { RelativeSizeAxes = Axes.Both } },
                 new GridContainer
                 {
                     RelativeSizeAxes = Axes.Both,

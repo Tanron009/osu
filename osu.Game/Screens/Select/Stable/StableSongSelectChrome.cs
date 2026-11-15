@@ -22,6 +22,7 @@ using osu.Game.Online.Leaderboards;
 using osu.Game.Rulesets.Objects.Types;
 using osu.Game.Screens.Play.Leaderboards;
 using osu.Game.Screens.Select.Filter;
+using osu.Game.Screens.Footer;
 using osu.Game.Skinning;
 using osuTK;
 using osuTK.Graphics;
@@ -66,6 +67,11 @@ namespace osu.Game.Screens.Select.Stable
 
         private StableSkinSprite headerArt = null!;
         private StableSkinSprite modeArt = null!;
+        private Drawable[] content = null!;
+        private Container? footerArtLayer;
+
+        [Resolved(CanBeNull = true)]
+        private ScreenFooter? footer { get; set; }
         private Drawable tabsRoot = null!;
 
         public StableSongSelectChrome(FilterControl filterControl)
@@ -82,17 +88,18 @@ namespace osu.Game.Screens.Select.Stable
 
             var colourDim = new Color4(120, 180, 230, 255);
 
-            var content = new Drawable[]
+            // skins that ship a big selection-mode image use it as full screen decoration (stable draws it bottom right, above the footer bar)
+            modeArt = new StableSkinSprite(@"selection-mode")
+            {
+                Anchor = Anchor.BottomRight,
+                Origin = Anchor.BottomRight,
+                Scale = new Vector2(scale),
+                Alpha = 0,
+            };
+
+            content = new Drawable[]
             {
                 // stable draws this at its native size (scaled to the window), top-aligned; skins may make it taller than the default
-                // skins that ship a big selection-mode image use it as full screen decoration (stable draws it bottom right)
-                modeArt = new StableSkinSprite(@"selection-mode")
-                {
-                    Anchor = Anchor.BottomRight,
-                    Origin = Anchor.BottomRight,
-                    Scale = new Vector2(scale),
-                    Alpha = 0,
-                },
                 headerArt = new StableSkinSprite(@"songselect-top")
                 {
                     Scale = new Vector2(scale),
@@ -111,11 +118,11 @@ namespace osu.Game.Screens.Select.Stable
                             X = 4,
                             Y = 6,
                         },
-                        titleText = new OsuSpriteText { X = 40, Y = -4, Font = OsuFont.GetFont(Typeface.Torus, 34, FontWeight.Regular) },
-                        mapperText = new OsuSpriteText { X = 40, Y = 28, Font = OsuFont.GetFont(Typeface.Torus, 26, FontWeight.Regular) },
-                        lengthText = new OsuSpriteText { Y = 56, Font = OsuFont.GetFont(Typeface.Torus, 24, FontWeight.Bold) },
-                        countText = new OsuSpriteText { Y = 82, Font = OsuFont.GetFont(Typeface.Torus, 24, FontWeight.Regular) },
-                        statsText = new OsuSpriteText { Y = 108, Font = OsuFont.GetFont(Typeface.Torus, 16, FontWeight.Regular) },
+                        titleText = new OsuSpriteText { X = 40, Y = -4, Font = StableUi.GetFont(34, FontWeight.Regular) },
+                        mapperText = new OsuSpriteText { X = 40, Y = 28, Font = StableUi.GetFont(26, FontWeight.Regular) },
+                        lengthText = new OsuSpriteText { Y = 56, Font = StableUi.GetFont(24, FontWeight.Bold) },
+                        countText = new OsuSpriteText { Y = 82, Font = StableUi.GetFont(24, FontWeight.Regular) },
+                        statsText = new OsuSpriteText { Y = 108, Font = StableUi.GetFont(16, FontWeight.Regular) },
                     }
                 },
                 calculationText = new OsuSpriteText
@@ -124,7 +131,7 @@ namespace osu.Game.Screens.Select.Stable
                     Origin = Anchor.TopRight,
                     X = -16,
                     Y = 2,
-                    Font = OsuFont.GetFont(Typeface.Torus, 22, FontWeight.Regular),
+                    Font = StableUi.GetFont(22, FontWeight.Regular),
                 },
                 new OsuSpriteText
                 {
@@ -133,7 +140,7 @@ namespace osu.Game.Screens.Select.Stable
                     X = -(1920 - 1243) - 0,
                     Y = 25,
                     Text = "Group",
-                    Font = OsuFont.GetFont(Typeface.Torus, 44, FontWeight.Light),
+                    Font = StableUi.GetFont(44, FontWeight.Light),
                     Colour = colourDim,
                 },
                 new SelectorBox<GroupMode>(groupMode, v => groupName(v))
@@ -151,7 +158,7 @@ namespace osu.Game.Screens.Select.Stable
                     X = -(1920 - 1625),
                     Y = 25,
                     Text = "Sort",
-                    Font = OsuFont.GetFont(Typeface.Torus, 44, FontWeight.Light),
+                    Font = StableUi.GetFont(44, FontWeight.Light),
                     Colour = new Color4(160, 230, 120, 255),
                 },
                 new SelectorBox<SortMode>(sortMode, v => $"By {v}")
@@ -181,12 +188,12 @@ namespace osu.Game.Screens.Select.Stable
                         {
                             Text = "Search: ",
                             Colour = new Color4(190, 255, 40, 255),
-                            Font = OsuFont.GetFont(Typeface.Torus, 30, FontWeight.Bold),
+                            Font = StableUi.GetFont(30, FontWeight.Bold),
                         },
                         searchValue = new OsuSpriteText
                         {
                             Text = "Type to search!",
-                            Font = OsuFont.GetFont(Typeface.Torus, 30, FontWeight.Bold),
+                            Font = StableUi.GetFont(30, FontWeight.Bold),
                         },
                     }
                 },
@@ -222,6 +229,10 @@ namespace osu.Game.Screens.Select.Stable
         protected override void Dispose(bool isDisposing)
         {
             StableUi.HideLogo = false;
+
+            if (footerArtLayer != null && modeArt != null)
+                footerArtLayer.Remove(modeArt, false);
+
             base.Dispose(isDisposing);
         }
 
@@ -229,12 +240,20 @@ namespace osu.Game.Screens.Select.Stable
         {
             base.LoadComplete();
 
+            if (footer != null)
+            {
+                footerArtLayer = footer.StableArtLayer;
+                footerArtLayer.Add(modeArt);
+            }
+            else
+                ((StableSpace)InternalChild).Add(modeArt);
+
             modeArt.Active.BindValueChanged(_ => updateModeArt(), true);
 
             // skins that ship their own songselect-top art usually bake the Group/Sort labels (and tabs) into it
             if (headerArt.FromSkin)
             {
-                foreach (var d in InternalChildren)
+                foreach (var d in content)
                 {
                     if (d is OsuSpriteText t && (t.Text.ToString() == "Group" || t.Text.ToString() == "Sort"))
                         t.Alpha = 0;
@@ -293,7 +312,7 @@ namespace osu.Game.Screens.Select.Stable
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             Text = name,
-                            Font = OsuFont.GetFont(Typeface.Torus, 22, FontWeight.SemiBold),
+                            Font = StableUi.GetFont(22, FontWeight.SemiBold),
                         },
                     }
                 };
@@ -436,7 +455,7 @@ namespace osu.Game.Screens.Select.Stable
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
                                 X = 10,
-                                Font = OsuFont.GetFont(Typeface.Torus, 26, FontWeight.Regular),
+                                Font = StableUi.GetFont(26, FontWeight.Regular),
                             },
                             new SpriteIcon
                             {
@@ -526,7 +545,7 @@ namespace osu.Game.Screens.Select.Stable
                             Origin = Anchor.CentreLeft,
                             X = 10,
                             Text = text,
-                            Font = OsuFont.GetFont(Typeface.Torus, 24, FontWeight.Regular),
+                            Font = StableUi.GetFont(24, FontWeight.Regular),
                         },
                     };
                 }

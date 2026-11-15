@@ -509,7 +509,44 @@ namespace osu.Game
             AddFont(Resources, @"Fonts/Venera/Venera-Bold");
             AddFont(Resources, @"Fonts/Venera/Venera-Black");
 
+            if (StableUi.Enabled)
+                StableUi.FontsLoaded = tryAddStableFonts();
+
             Fonts.AddStore(new OsuIcon.OsuIconStore(Textures));
+        }
+
+        /// <summary>
+        /// Registers stable's Aller font from <c>stable-assets/Fonts</c> in the data folder, or a <c>stable-fonts</c> folder next to the executable.
+        /// </summary>
+        private bool tryAddStableFonts()
+        {
+            try
+            {
+                IResourceStore<byte[]>? store = null;
+
+                if (Storage.ExistsDirectory(@"stable-assets/Fonts"))
+                    store = new StorageBackedResourceStore(Storage.GetStorageForDirectory(@"stable-assets/Fonts"));
+                else
+                {
+                    string dir = Path.Combine(AppContext.BaseDirectory, @"stable-fonts");
+
+                    if (Directory.Exists(dir))
+                        store = new StorageBackedResourceStore(new NativeStorage(dir));
+                }
+
+                if (store == null || store.Get(@"Aller-Regular.ttf") == null || store.Get(@"Aller-Light.ttf") == null || store.Get(@"Aller-Bold.ttf") == null)
+                    return false;
+
+                AddOutlineFont(store, @"Aller-Regular");
+                AddOutlineFont(store, @"Aller-Light");
+                AddOutlineFont(store, @"Aller-Bold");
+                return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Log($@"Could not load stable fonts: {e.Message}", LoggingTarget.Runtime, LogLevel.Important);
+                return false;
+            }
         }
 
         protected override void LoadComplete()

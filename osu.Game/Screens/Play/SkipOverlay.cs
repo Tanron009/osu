@@ -25,6 +25,7 @@ using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Input.Bindings;
 using osu.Game.Screens.Ranking;
+using osu.Game.Screens.Select.Stable;
 using osuTK;
 using osuTK.Graphics;
 
@@ -71,6 +72,15 @@ namespace osu.Game.Screens.Play
         {
             this.startTime = startTime;
 
+            if (StableUi.Enabled)
+            {
+                // stable puts the skin's play-skip image in the bottom right corner
+                Anchor = Anchor.BottomRight;
+                Origin = Anchor.BottomRight;
+                Size = new Vector2(100);
+                return;
+            }
+
             RelativePositionAxes = Axes.Both;
             RelativeSizeAxes = Axes.X;
 
@@ -109,12 +119,18 @@ namespace osu.Game.Screens.Play
         /// Creates a skip button.
         /// </summary>
         /// <param name="inSkipPeriod">Whether the gameplay clock is currently at the skippable period.</param>
-        protected virtual OsuClickableContainer CreateButton(IBindable<bool> inSkipPeriod) => new Button
+        protected virtual OsuClickableContainer CreateButton(IBindable<bool> inSkipPeriod)
         {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
-            Enabled = { BindTarget = inSkipPeriod },
-        };
+            if (StableUi.Enabled)
+                return new StableSkipButton { Enabled = { BindTarget = inSkipPeriod } };
+
+            return new Button
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                Enabled = { BindTarget = inSkipPeriod },
+            };
+        }
 
         private const double fade_time = 300;
 
@@ -152,6 +168,9 @@ namespace osu.Game.Screens.Play
                 RequestSkip?.Invoke();
             };
 
+            if (StableUi.Enabled)
+                RemainingTimeBox.Alpha = 0;
+
             FadingContent.TriggerShow();
         }
 
@@ -181,6 +200,9 @@ namespace osu.Game.Screens.Play
         protected override void Update()
         {
             base.Update();
+
+            if (StableUi.Enabled && button is StableSkipButton stableButton)
+                Size = stableButton.ButtonSize;
 
             // This case causes an immediate expire in `LoadComplete`, but `Update` may run once after that.
             // Avoid div-by-zero below.

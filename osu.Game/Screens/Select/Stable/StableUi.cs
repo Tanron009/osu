@@ -16,6 +16,25 @@ namespace osu.Game.Screens.Select.Stable
     {
         public static bool Enabled { get; set; }
 
+        /// <summary>Whether stable's Aller font was found and registered.</summary>
+        public static bool FontsLoaded { get; set; }
+
+        /// <summary>stable's UI font (Aller) when available, otherwise lazer's.</summary>
+        public static osu.Framework.Graphics.Sprites.FontUsage GetFont(float size, osu.Game.Graphics.FontWeight weight = osu.Game.Graphics.FontWeight.Regular)
+        {
+            if (!FontsLoaded)
+                return osu.Game.Graphics.OsuFont.GetFont(osu.Game.Graphics.Typeface.Torus, size, weight);
+
+            string w = weight switch
+            {
+                osu.Game.Graphics.FontWeight.Light => "Light",
+                osu.Game.Graphics.FontWeight.SemiBold or osu.Game.Graphics.FontWeight.Bold or osu.Game.Graphics.FontWeight.Black => "Bold",
+                _ => "Regular",
+            };
+
+            return new osu.Framework.Graphics.Sprites.FontUsage("Aller", size, w);
+        }
+
         /// <summary>Set while a skin's full-screen song select art replaces the osu! logo in the bottom right.</summary>
         public static bool HideLogo { get; set; }
 

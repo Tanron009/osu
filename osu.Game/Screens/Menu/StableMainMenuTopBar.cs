@@ -55,10 +55,10 @@ namespace osu.Game.Screens.Menu
             {
                 new Box { RelativeSizeAxes = Axes.Both, Colour = Color4.Black, Alpha = 0.55f },
                 avatarContainer = new Container { Size = new Vector2(105), Position = new Vector2(12, 0) },
-                nameText = new OsuSpriteText { Position = new Vector2(122, -4), Font = OsuFont.GetFont(Typeface.Torus, 34, FontWeight.Regular) },
-                ppText = new OsuSpriteText { Position = new Vector2(122, 30), Font = OsuFont.GetFont(Typeface.Torus, 22, FontWeight.Regular) },
-                accText = new OsuSpriteText { Position = new Vector2(122, 52), Font = OsuFont.GetFont(Typeface.Torus, 22, FontWeight.Regular) },
-                levelText = new OsuSpriteText { Position = new Vector2(122, 74), Font = OsuFont.GetFont(Typeface.Torus, 22, FontWeight.Regular) },
+                nameText = new OsuSpriteText { Position = new Vector2(122, -4), Font = StableUi.GetFont(34, FontWeight.Regular) },
+                ppText = new OsuSpriteText { Position = new Vector2(122, 30), Font = StableUi.GetFont(22, FontWeight.Regular) },
+                accText = new OsuSpriteText { Position = new Vector2(122, 52), Font = StableUi.GetFont(22, FontWeight.Regular) },
+                levelText = new OsuSpriteText { Position = new Vector2(122, 74), Font = StableUi.GetFont(22, FontWeight.Regular) },
                 new Container
                 {
                     Position = new Vector2(level_bar_x, 86),
