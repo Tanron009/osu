@@ -238,6 +238,15 @@ namespace osu.Game.Screens.Menu
             };
 
             Buttons.OnSettings = () => settings?.ToggleVisibility();
+
+            if (Screens.Select.Stable.StableUi.Enabled)
+            {
+                // keep lazer's button logic alive (logo/state handling) but draw stable's buttons instead
+                foreach (var b in Buttons.InternalChildren)
+                    b.Alpha = 0;
+
+                AddInternal(new StableMainMenuButtons(Buttons));
+            }
             Buttons.OnBeatmapListing = () => beatmapListing?.ToggleVisibility();
 
             reappearSampleSwoosh = audio.Samples.Get(@"Menu/reappear-swoosh");

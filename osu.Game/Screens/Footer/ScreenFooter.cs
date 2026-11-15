@@ -95,7 +95,7 @@ namespace osu.Game.Screens.Footer
             {
                 leftButtonsFlow.Anchor = Anchor.TopLeft;
                 leftButtonsFlow.Origin = Anchor.TopLeft;
-                leftButtonsFlow.Y = 0;
+                leftButtonsFlow.Y = -24;
                 leftButtonsFlow.Spacing = new Vector2(6, 0);
             }
         }
