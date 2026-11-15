@@ -25,6 +25,9 @@ namespace osu.Game.Skinning
         [Resolved]
         private ISkinSource skin { get; set; } = null!;
 
+        [Resolved]
+        private StableAssetStore stableAssets { get; set; } = null!;
+
         public StableSkinSprite(string textureName)
         {
             this.textureName = textureName;
@@ -50,7 +53,7 @@ namespace osu.Game.Skinning
 
         private void refresh()
         {
-            var texture = useStableUI.Value ? skin.GetTexture(textureName) : null;
+            var texture = useStableUI.Value ? skin.GetTexture(textureName) ?? stableAssets.Get(textureName) : null;
 
             Texture = texture;
             Active.Value = texture != null;
