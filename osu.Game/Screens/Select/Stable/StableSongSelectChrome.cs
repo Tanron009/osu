@@ -78,11 +78,10 @@ namespace osu.Game.Screens.Select.Stable
 
             InternalChildren = new Drawable[]
             {
+                // stable draws this at its native size (scaled to the window), top-aligned; skins may make it taller than the default
                 new StableSkinSprite(@"songselect-top")
                 {
-                    RelativeSizeAxes = Axes.X,
-                    Height = 155 * scale,
-                    FillMode = FillMode.Stretch,
+                    Scale = new Vector2(scale),
                 },
                 new Container
                 {

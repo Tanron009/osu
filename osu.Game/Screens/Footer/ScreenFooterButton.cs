@@ -6,6 +6,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
+using osu.Framework.Testing;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Effects;
@@ -252,7 +253,11 @@ namespace osu.Game.Screens.Footer
         }
 
         // account for shear and buttons temporarily hidden with DisappearToBottom.
-        public override bool ReceivePositionalInputAt(Vector2 screenSpacePos) => shearedContent.ReceivePositionalInputAt(screenSpacePos);
+        public override bool ReceivePositionalInputAt(Vector2 screenSpacePos)
+            // stable art is a plain rectangle, so use the button's own bounds rather than lazer's sheared hit area
+            => StableUi.Enabled && legacyArt?.Active.Value == true
+                ? base.ReceivePositionalInputAt(screenSpacePos)
+                : shearedContent.ReceivePositionalInputAt(screenSpacePos);
 
         public GlobalAction? Hotkey;
 
@@ -331,6 +336,15 @@ namespace osu.Game.Screens.Footer
 
             legacyArt.Alpha = active && !showOver ? 1 : 0;
             legacyArtOver.Alpha = showOver ? 1 : 0;
+
+            if (StableUi.Enabled && active)
+            {
+                // lazer's sheared backgrounds / glow / shadow must not show through the (possibly transparent) stable art
+                shearedContent.EdgeEffect = default;
+
+                foreach (var box in shearedContent.ChildrenOfType<Box>())
+                    box.Alpha = 0;
+            }
 
             if (KeepTextWithLegacyArt)
             {

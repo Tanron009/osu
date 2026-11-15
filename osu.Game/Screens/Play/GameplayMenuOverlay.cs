@@ -8,6 +8,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
+using osu.Framework.Testing;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Bindings;
@@ -166,6 +167,21 @@ namespace osu.Game.Screens.Play
                 AddButton(GameplayMenuOverlayStrings.Quit, new Color4(170, 27, 39, 255), () => OnQuit.Invoke());
 
             State.ValueChanged += _ => InternalButtons.Deselect();
+
+            if (Screens.Select.Stable.StableUi.Enabled)
+            {
+                // osu!stable UI: draw stable's pause screen over the (still functional) lazer one
+                InternalButtons.Alpha = 0;
+                playInfoText.Alpha = 0;
+
+                foreach (var t in this.ChildrenOfType<OsuSpriteText>())
+                {
+                    if (t.Text == Header)
+                        t.Alpha = 0;
+                }
+
+                AddInternal(new StableGameplayMenuButtons(Buttons));
+            }
 
             updateInfoText();
 
