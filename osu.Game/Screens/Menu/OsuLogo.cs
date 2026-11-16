@@ -376,7 +376,7 @@ namespace osu.Game.Screens.Menu
                 // main menu parallax: shifting the custom origin moves the logo without touching Position (which ButtonSystem animates)
                 var offset = Screens.Select.Stable.StableUi.MenuParallax / Screens.Select.Stable.StableUi.PxPerUnit;
                 Origin = Anchor.Custom;
-                CustomOrigin = DrawSize / 2f - (Scale.X > 0.01f ? offset / Scale.X : offset);
+                OriginPosition = DrawSize / 2f - (Scale.X > 0.01f ? offset / Scale.X : offset);
             }
 
             // the skinned song select art already contains a logo spot; keep the real one (almost) invisible but clickable
