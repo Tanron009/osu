@@ -108,7 +108,7 @@ namespace osu.Game.Screens.Menu
                     bool show = s == ButtonSystemState.TopLevel || s == ButtonSystemState.Play;
 
                     // the logo has to arrive first (it travels back from the song select corner), then the buttons come out of it
-                    double delay = from == ButtonSystemState.EnteringMode ? 520 : 300;
+                    double delay = from == ButtonSystemState.EnteringMode ? 330 : 0;
                     int i = 0;
 
                     foreach (var b in space.Children.OfType<StableButton>())
@@ -163,7 +163,11 @@ namespace osu.Game.Screens.Menu
                 ClearTransforms();
 
                 if (show)
-                    this.MoveToX(StableUi.MENU_LOGO_X).FadeOut().Delay(delay + index * 70).FadeIn(80).MoveToX(EdgeX, 450, Easing.OutQuint);
+                {
+                    // start with the whole button hidden behind the logo (its left edge at the logo centre), then slide out of it
+                    float startX = StableUi.MENU_LOGO_X + DrawWidth * Scale.X / 1920f;
+                    this.MoveToX(startX).FadeOut().Delay(delay + index * 50).FadeIn(60).MoveToX(EdgeX, 380, Easing.OutQuint);
+                }
                 else
                     this.MoveToX(StableUi.MENU_LOGO_X, 140, Easing.InQuad).FadeOut(140);
             }
