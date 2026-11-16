@@ -144,7 +144,7 @@ namespace osu.Game.Screens.Menu
                 new ScrollAdjustsVolume(),
                 buttonsContainer = new ParallaxContainer
                 {
-                    ParallaxAmount = 0.01f,
+                    ParallaxAmount = Screens.Select.Stable.StableUi.Enabled ? 0 : 0.01f,
                     Children = new Drawable[]
                     {
                         Buttons = new ButtonSystem
@@ -377,7 +377,7 @@ namespace osu.Game.Screens.Menu
 
             Buttons.State = ButtonSystemState.EnteringMode;
 
-            this.FadeOut(FADE_OUT_DURATION, Easing.InSine);
+            this.FadeOut(Screens.Select.Stable.StableUi.Enabled ? 120 : FADE_OUT_DURATION, Easing.InSine);
             buttonsContainer.MoveTo(new Vector2(-800, 0), FADE_OUT_DURATION, Easing.InSine);
 
             sideFlashes.FadeOut(64, Easing.OutQuint);

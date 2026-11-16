@@ -77,7 +77,7 @@ namespace osu.Game.Screens.Menu
             if (active && input != null)
             {
                 var centre = ToScreenSpace(DrawSize / 2f);
-                target = (input.CurrentState.Mouse.Position - centre) * 0.035f;
+                target = (input.CurrentState.Mouse.Position - centre) * -0.025f;
             }
 
             var cur = StableUi.MenuParallax;
@@ -96,13 +96,25 @@ namespace osu.Game.Screens.Menu
             base.LoadComplete();
             Alpha = 1;
 
-            buttons.StateChanged += s => Schedule(() =>
-            {
-                int i = 0;
+            ButtonSystemState previous = buttons.State;
 
-                foreach (var b in space.Children.OfType<StableButton>())
-                    b.SlideTo(s != ButtonSystemState.Initial && s != ButtonSystemState.Exit, i++);
-            });
+            buttons.StateChanged += s =>
+            {
+                var from = previous;
+                previous = s;
+
+                Schedule(() =>
+                {
+                    bool show = s == ButtonSystemState.TopLevel || s == ButtonSystemState.Play;
+
+                    // the logo has to arrive first (it travels back from the song select corner), then the buttons come out of it
+                    double delay = from == ButtonSystemState.EnteringMode ? 520 : 300;
+                    int i = 0;
+
+                    foreach (var b in space.Children.OfType<StableButton>())
+                        b.SlideTo(show, i++, delay);
+                });
+            };
         }
 
         private partial class StableButton : Container
@@ -145,14 +157,15 @@ namespace osu.Game.Screens.Menu
             /// <summary>
             /// stable slides the buttons out from behind the logo one after another (and back when the menu closes).
             /// </summary>
-            public void SlideTo(bool show, int index)
+            public void SlideTo(bool show, int index, double delay)
             {
                 shown = show;
+                ClearTransforms();
 
                 if (show)
-                    this.MoveToX(EdgeX - 300f / 1920f).Delay(index * 60).FadeIn(100).MoveToX(EdgeX, 400, Easing.OutQuint);
+                    this.MoveToX(StableUi.MENU_LOGO_X).FadeOut().Delay(delay + index * 70).FadeIn(80).MoveToX(EdgeX, 450, Easing.OutQuint);
                 else
-                    this.MoveToX(EdgeX - 300f / 1920f, 250, Easing.InQuint).FadeOut(250);
+                    this.MoveToX(StableUi.MENU_LOGO_X, 140, Easing.InQuad).FadeOut(140);
             }
 
             protected override bool OnHover(HoverEvent e)

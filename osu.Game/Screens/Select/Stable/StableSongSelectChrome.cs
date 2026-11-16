@@ -267,6 +267,26 @@ namespace osu.Game.Screens.Select.Stable
             accuracyText.Text = stats != null ? $"Accuracy:{stats.Accuracy:0.00}%" : "Accuracy:0.00%";
         }
 
+        protected override void Update()
+        {
+            base.Update();
+
+            // the skin's textures can arrive after LoadComplete, so keep the baked-art checks live
+            if (content != null && headerArt != null && modeArt != null)
+            {
+                updateModeArt();
+
+                if (headerArt.FromSkin)
+                {
+                    foreach (var d in content)
+                    {
+                        if (d is OsuSpriteText t && (t.Text.ToString() == "Group" || t.Text.ToString() == "Sort"))
+                            t.Alpha = 0;
+                    }
+                }
+            }
+        }
+
         private void updateModeArt()
         {
             bool big = modeArt.FromSkin && modeArt.Texture != null && modeArt.Texture.DisplayWidth > 600;

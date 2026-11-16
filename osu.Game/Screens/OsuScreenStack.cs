@@ -64,6 +64,6 @@ namespace osu.Game.Screens
         }
 
         private void setParallax(IScreen? next) =>
-            parallaxContainer.ParallaxAmount = ParallaxContainer.DEFAULT_PARALLAX_AMOUNT * ((next as IOsuScreen)?.BackgroundParallaxAmount ?? 1.0f);
+            parallaxContainer.ParallaxAmount = ParallaxContainer.DEFAULT_PARALLAX_AMOUNT * ((next as IOsuScreen)?.BackgroundParallaxAmount ?? 1.0f) * (osu.Game.Screens.Select.Stable.StableUi.Enabled ? -0.7f : 1f);
     }
 }
