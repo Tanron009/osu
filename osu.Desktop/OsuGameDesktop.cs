@@ -119,7 +119,10 @@ namespace osu.Desktop
             {
                 string targetPath = Path.GetFullPath(target.GetFullPath(".")).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 
-                if (!File.Exists(Path.Combine(targetPath, osu.Game.Screens.Select.Stable.StableUi.REAL_LAZER_FLAG)))
+                string flagPath = Path.Combine(targetPath, osu.Game.Screens.Select.Stable.StableUi.REAL_LAZER_FLAG);
+
+                // "on" = copy now; "done" = already copied once, from here on this build keeps its own changes (skin, settings, maps).
+                if (!File.Exists(flagPath) || File.ReadAllText(flagPath).Trim() == "done")
                     return;
 
                 string? parent = Path.GetDirectoryName(targetPath);
@@ -206,6 +209,8 @@ namespace osu.Desktop
 
                     Logger.Log($"Mirrored real osu!lazer data: {linked} files linked, {copied} copied.", LoggingTarget.Runtime, LogLevel.Important);
                 }
+
+                File.WriteAllText(flagPath, "done");
             }
             catch (Exception e)
             {

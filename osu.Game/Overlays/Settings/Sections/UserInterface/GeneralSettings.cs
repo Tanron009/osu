@@ -53,7 +53,7 @@ namespace osu.Game.Overlays.Settings.Sections.UserInterface
                 new SettingsItemV2(new FormCheckBox
                 {
                     Caption = "Use my real osu!lazer maps and settings",
-                    HintText = "On every start, copies your real osu!lazer database (maps, scores, skins list, keybinds) and settings into this build, then uses the copies. Your real osu! folder is only ever read, never changed, and anything you add, delete or change here stays here. Close the real osu! first. Restart after changing.",
+                    HintText = "On the next start, copies your real osu!lazer database (maps, scores, skins, keybinds) and settings into this build once. After that this build keeps its own changes. Your real osu! folder is only ever read, never changed. Turn it off and on again (and restart) to copy again, which overwrites changes made here. Close the real osu! first.",
                     Current = useRealLazer
                 })
                 {
