@@ -56,8 +56,6 @@ namespace osu.Game.Screens.Select.Stable
         private readonly Bindable<SortMode> sortMode = new Bindable<SortMode>();
         private readonly Bindable<GroupMode> groupMode = new Bindable<GroupMode>();
 
-        private readonly List<(GroupMode mode, StableSkinSprite art, Box fill, OsuSpriteText text)> tabs = new List<(GroupMode, StableSkinSprite, Box, OsuSpriteText)>();
-
         private readonly StableLeaderboard leaderboard = new StableLeaderboard();
 
         private CancellationTokenSource? starCancellation;
@@ -90,7 +88,6 @@ namespace osu.Game.Screens.Select.Stable
 
         [Resolved(CanBeNull = true)]
         private ScreenFooter? footer { get; set; }
-        private Drawable tabsRoot = null!;
 
         public StableSongSelectChrome(FilterControl filterControl)
         {
@@ -187,11 +184,6 @@ namespace osu.Game.Screens.Select.Stable
                     Y = 22,
                     Size = new Vector2(268, 40),
                 },
-                createTabs().With(t =>
-                {
-                    t.Depth = 1;
-                    tabsRoot = t;
-                }),
                 new FillFlowContainer
                 {
                     Anchor = Anchor.TopRight,
@@ -242,36 +234,8 @@ namespace osu.Game.Screens.Select.Stable
             double duration = show ? 450 : 250;
             var easing = show ? Easing.OutQuint : Easing.OutQuad;
 
-            if (footerArtLayer != null)
-            {
-                footerArtLayer.FadeTo(show ? 1 : 0, duration, easing);
-
-                // leaving song select for good: take our art out of the shared footer once it has faded (we are on the update thread here).
-                if (!show && restoreFooterAfterwards && modeArt != null)
-                {
-                    var layer = footerArtLayer;
-                    var art = modeArt;
-                    var stats = profileStats;
-
-                    layer.Delay(duration + 50).Schedule(() =>
-                    {
-                        layer.Remove(art, false);
-
-                        if (stats != null)
-                            layer.Remove(stats, false);
-                    });
-                }
-            }
-
-            if (footer != null)
-            {
-                if (show)
-                    footer.FadeTo(1, duration, easing);
-                else if (restoreFooterAfterwards)
-                    footer.FadeOut(duration, easing).Then().FadeIn();
-                else
-                    footer.FadeOut(duration, easing);
-            }
+            // the footer itself (bar, buttons, sliding) is left to the stock footer logic; only our art on it fades.
+            footerArtLayer?.FadeTo(show ? 1 : 0, duration, easing);
 
             if (show && InternalChild != null)
                 InternalChild.FadeInFromZero(duration, easing);
@@ -312,7 +276,6 @@ namespace osu.Game.Screens.Select.Stable
             StableUi.HideLogo = big;
 
             // the skin art already draws the group tabs
-            tabsRoot.Alpha = big || headerArt.FromSkin ? 0 : 1;
         }
 
         protected override void Dispose(bool isDisposing)
@@ -349,8 +312,12 @@ namespace osu.Game.Screens.Select.Stable
             if (footer != null)
             {
                 footerArtLayer = footer.StableArtLayer;
+
+                // the layer is shared between song select instances, so drop what a previous instance left behind.
+                footerArtLayer.Clear(false);
                 footerArtLayer.Add(modeArt);
                 footerArtLayer.Add(profileStats);
+                footerArtLayer.Alpha = 1;
             }
             else
                 ((StableSpace)InternalChild).Add(modeArt);
@@ -369,7 +336,6 @@ namespace osu.Game.Screens.Select.Stable
             }
 
             filterControl.CriteriaChanged += c => Schedule(() => onCriteria(c.SearchText));
-            groupMode.BindValueChanged(_ => updateTabs(), true);
             working.BindValueChanged(_ => updateInfo(), true);
         }
 
@@ -379,70 +345,6 @@ namespace osu.Game.Screens.Select.Stable
 
             searchValue.Text = empty ? "Type to search!" : text;
             searchValue.Colour = empty ? Color4.White : new Color4(255, 255, 120, 255);
-        }
-
-        private Drawable createTabs()
-        {
-            var flow = new FillFlowContainer
-            {
-                Anchor = Anchor.TopRight,
-                Origin = Anchor.TopRight,
-                X = -16,
-                Y = 72,
-                AutoSizeAxes = Axes.Both,
-                Direction = FillDirection.Horizontal,
-            };
-
-            (string, GroupMode)[] items =
-            {
-                ("Collections", GroupMode.Collections),
-                ("Recently Played", GroupMode.LastPlayed),
-                ("By Artist", GroupMode.Artist),
-                ("By Difficulty", GroupMode.Difficulty),
-                ("No Grouping", GroupMode.None),
-            };
-
-            foreach (var (name, mode) in items)
-            {
-                Box fill;
-                StableSkinSprite art;
-                OsuSpriteText text;
-
-                var tab = new StableTab(() => groupMode.Value = mode)
-                {
-                    Size = new Vector2(171, 28),
-                    Children = new Drawable[]
-                    {
-                        fill = new Box { RelativeSizeAxes = Axes.Both, Colour = new Color4(220, 20, 60, 255) },
-                        art = new StableSkinSprite(@"selection-tab") { RelativeSizeAxes = Axes.Both, FillMode = FillMode.Stretch },
-                        text = new OsuSpriteText
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            Text = name,
-                            Font = StableUi.GetFont(22, FontWeight.SemiBold),
-                        },
-                    }
-                };
-
-                art.Active.BindValueChanged(a => fill.Alpha = a.NewValue ? 0 : 1, true);
-                tabs.Add((mode, art, fill, text));
-                flow.Add(tab);
-            }
-
-            return flow;
-        }
-
-        private void updateTabs()
-        {
-            foreach (var t in tabs)
-            {
-                bool active = t.mode == groupMode.Value;
-                var tint = active ? Color4.White : new Color4(220, 20, 60, 255);
-                t.fill.Colour = tint;
-                t.art.Colour = tint;
-                t.text.Colour = active ? Color4.Black : Color4.White;
-            }
         }
 
         private static string groupName(GroupMode mode) => mode switch
