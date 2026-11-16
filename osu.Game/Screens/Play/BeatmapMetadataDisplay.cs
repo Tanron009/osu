@@ -392,28 +392,28 @@ namespace osu.Game.Screens.Play
                                 Spacing = new Vector2(0, 2),
                                 Children = new Drawable[]
                                 {
-                                    new OsuSpriteText
+                                    new TruncatingSpriteText
                                     {
                                         Text = new RomanisableString(metadata.TitleUnicode, metadata.Title),
                                         Font = StableUi.GetFont(38, FontWeight.Bold),
-                                        Truncate = true,
+                                        ShowTooltip = false,
                                         RelativeSizeAxes = Axes.X,
                                     },
-                                    new OsuSpriteText
+                                    new TruncatingSpriteText
                                     {
                                         Text = new RomanisableString(metadata.ArtistUnicode, metadata.Artist),
                                         Font = StableUi.GetFont(24, FontWeight.Regular),
                                         Colour = OsuColour.Gray(0.88f),
-                                        Truncate = true,
+                                        ShowTooltip = false,
                                         RelativeSizeAxes = Axes.X,
                                     },
-                                    new OsuSpriteText
+                                    new TruncatingSpriteText
                                     {
                                         Text = beatmap.BeatmapInfo.DifficultyName,
                                         Font = StableUi.GetFont(20, FontWeight.Bold),
                                         Colour = stable_accent,
                                         Margin = new MarginPadding { Top = 6 },
-                                        Truncate = true,
+                                        ShowTooltip = false,
                                         RelativeSizeAxes = Axes.X,
                                     },
                                 }
