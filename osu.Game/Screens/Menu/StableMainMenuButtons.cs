@@ -162,14 +162,20 @@ namespace osu.Game.Screens.Menu
                 shown = show;
                 ClearTransforms();
 
+                float from = EdgeX - 300f / 1920f;
+
                 if (show)
                 {
-                    // start with the whole button hidden behind the logo (its left edge at the logo centre), then slide out of it
-                    float startX = StableUi.MENU_LOGO_X + DrawWidth * Scale.X / 1920f;
-                    this.MoveToX(startX).FadeOut().Delay(delay + index * 50).FadeIn(60).MoveToX(EdgeX, 380, Easing.OutQuint);
+                    // returning from song select (delay > 0) is a slower, clearly visible slide; opening the menu keeps the quick one
+                    double fade = delay > 0 ? 160 : 100;
+                    double slide = delay > 0 ? 700 : 400;
+                    this.MoveToX(from).FadeOut();
+                    // fade and slide run together, so the slide is visible instead of only fading in
+                    this.Delay(delay + index * 60).FadeIn(fade);
+                    this.Delay(delay + index * 60).MoveToX(EdgeX, slide, Easing.OutQuint);
                 }
                 else
-                    this.MoveToX(StableUi.MENU_LOGO_X, 140, Easing.InQuad).FadeOut(140);
+                    this.MoveToX(from, 170, Easing.InQuad).FadeOut(170);
             }
 
             protected override bool OnHover(HoverEvent e)
