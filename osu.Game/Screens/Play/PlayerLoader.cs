@@ -347,7 +347,7 @@ namespace osu.Game.Screens.Play
                 sideContent.Content = new[]
                 {
                     new Drawable[] { new Container { RelativeSizeAxes = Axes.Both, Children = new Drawable[] { scroll, hint } } },
-                    sideContent.Content[1].ToArray(),
+                    new Drawable[] { sideContent.Content[1][0] },
                 };
             }
 
