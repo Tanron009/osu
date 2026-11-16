@@ -25,6 +25,7 @@ using osu.Game.Beatmaps;
 using osu.Game.Configuration;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
+using osu.Game.Graphics.Sprites;
 using osu.Game.Input;
 using osu.Game.Localisation;
 using osu.Game.Online.API;
@@ -306,6 +307,49 @@ namespace osu.Game.Screens.Play
                 idleTracker = new IdleTracker(1500),
                 sampleRestart = new SkinnableSound(new SampleInfo(@"Gameplay/restart", @"pause-retry-click"))
             };
+
+            if (Screens.Select.Stable.StableUi.Enabled)
+            {
+                // redesigned side panel: a header that explains that hovering the settings pauses loading
+                var scroll = (OsuScrollContainer)sideContent.Content[0][0];
+                scroll.Padding = new MarginPadding { Top = 58 };
+                scroll.RelativeSizeAxes = Axes.Both;
+
+                var hint = new FillFlowContainer
+                {
+                    AutoSizeAxes = Axes.Both,
+                    Direction = FillDirection.Vertical,
+                    Anchor = Anchor.TopRight,
+                    Origin = Anchor.TopRight,
+                    Margin = new MarginPadding { Top = 22, Right = padding + 4 },
+                    Spacing = new Vector2(0, 1),
+                    Children = new Drawable[]
+                    {
+                        new OsuSpriteText
+                        {
+                            Text = "QUICK SETTINGS",
+                            Font = Screens.Select.Stable.StableUi.GetFont(20, FontWeight.Bold),
+                            Colour = new Color4(255, 102, 170, 255),
+                            Anchor = Anchor.TopRight,
+                            Origin = Anchor.TopRight,
+                        },
+                        new OsuSpriteText
+                        {
+                            Text = "hovering here pauses loading",
+                            Font = Screens.Select.Stable.StableUi.GetFont(14, FontWeight.Regular),
+                            Colour = OsuColour.Gray(0.75f),
+                            Anchor = Anchor.TopRight,
+                            Origin = Anchor.TopRight,
+                        },
+                    }
+                };
+
+                sideContent.Content = new[]
+                {
+                    new Drawable[] { new Container { RelativeSizeAxes = Axes.Both, Children = new Drawable[] { scroll, hint } } },
+                    sideContent.Content[1],
+                };
+            }
 
             if (Beatmap.Value.Beatmap.EpilepsyWarning)
             {
