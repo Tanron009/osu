@@ -41,6 +41,8 @@ namespace osu.Game.Screens.Select.Stable
     public partial class StableSongSelectChrome : CompositeDrawable
     {
         private const float scale = 1.40625f;
+        private const float tab_strip_top = 54f;
+        private const float tab_strip_left = 700f;
 
         private readonly FilterControl filterControl;
 
@@ -69,6 +71,7 @@ namespace osu.Game.Screens.Select.Stable
         private BeatmapDifficultyCache difficultyCache { get; set; } = null!;
 
         private StableSkinSprite headerArt = null!;
+        private Container croppedHeader = null!;
         private StableSkinSprite modeArt = null!;
         private Drawable[] content = null!;
         private Container? footerArtLayer;
@@ -118,6 +121,28 @@ namespace osu.Game.Screens.Select.Stable
                 headerArt = new StableSkinSprite(@"songselect-top")
                 {
                     Scale = new Vector2(scale),
+                },
+                // the same art with its baked group tab strip cut out (used whenever the skin supplies the art)
+                croppedHeader = new Container
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Alpha = 0,
+                    Children = new Drawable[]
+                    {
+                        new Container
+                        {
+                            Masking = true,
+                            Size = new Vector2(1366 * scale, tab_strip_top * scale),
+                            Child = new StableSkinSprite(@"songselect-top") { Scale = new Vector2(scale) },
+                        },
+                        new Container
+                        {
+                            Masking = true,
+                            Position = new Vector2(0, tab_strip_top * scale),
+                            Size = new Vector2(tab_strip_left * scale, (400 - tab_strip_top) * scale),
+                            Child = new StableSkinSprite(@"songselect-top") { Scale = new Vector2(scale), Y = -tab_strip_top * scale },
+                        },
+                    }
                 },
                 new Container
                 {
@@ -271,6 +296,13 @@ namespace osu.Game.Screens.Select.Stable
 
         private void updateModeArt()
         {
+            // skins bake their own group tabs into the top art; those buttons never worked here, so draw the art without them.
+            if (headerArt != null && croppedHeader != null)
+            {
+                headerArt.Alpha = headerArt.FromSkin ? 0 : 1;
+                croppedHeader.Alpha = headerArt.FromSkin ? 1 : 0;
+            }
+
             bool big = modeArt.FromSkin && modeArt.Texture != null && modeArt.Texture.DisplayWidth > 600;
             modeArt.Alpha = big ? 1 : 0;
             StableUi.HideLogo = big;
