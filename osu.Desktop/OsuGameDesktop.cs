@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using Microsoft.Win32;
 using osu.Desktop.IPC;
@@ -46,6 +47,7 @@ namespace osu.Desktop
         protected override Storage CreateStorage(GameHost host, Storage defaultStorage)
         {
             seedSettingsFromOfficialInstall(defaultStorage);
+            mirrorRealLazer(defaultStorage);
             return base.CreateStorage(host, defaultStorage);
         }
 
@@ -102,6 +104,121 @@ namespace osu.Desktop
             {
                 Logger.Log($"Could not copy settings from the official install: {e.Message}", LoggingTarget.Runtime, LogLevel.Important);
             }
+        }
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern bool CreateHardLink(string newFileName, string existingFileName, IntPtr securityAttributes);
+
+        /// <summary>
+        /// Personal fork: when the "use real osu!lazer maps and settings" marker exists, refresh this build's data folder from the official one on every start.
+        /// The official folder is strictly a read-only source: nothing is ever written to, moved or deleted in it.
+        /// </summary>
+        private void mirrorRealLazer(Storage target)
+        {
+            try
+            {
+                string targetPath = Path.GetFullPath(target.GetFullPath(".")).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+                if (!File.Exists(Path.Combine(targetPath, osu.Game.Screens.Select.Stable.StableUi.REAL_LAZER_FLAG)))
+                    return;
+
+                string? parent = Path.GetDirectoryName(targetPath);
+                if (parent == null) return;
+
+                string sourcePath = Path.Combine(parent, "osu");
+
+                if (!Directory.Exists(sourcePath) || string.Equals(sourcePath, targetPath, StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                string sourceRealm = Path.Combine(sourcePath, "client.realm");
+                if (!File.Exists(sourceRealm)) return;
+
+                string targetRealm = Path.Combine(targetPath, "client.realm");
+
+                // keep the previous database around once, in case the mirror is ever not wanted.
+                string backup = targetRealm + ".before-real-lazer";
+                if (File.Exists(targetRealm) && !File.Exists(backup))
+                    File.Copy(targetRealm, backup);
+
+                // copy to a temporary name first so a failed copy never leaves a broken database behind.
+                string temp = targetRealm + ".mirror-tmp";
+                copyShared(sourceRealm, temp);
+
+                foreach (string stale in new[] { targetRealm + ".lock", targetRealm + ".note" })
+                {
+                    if (File.Exists(stale)) File.Delete(stale);
+                }
+
+                string management = targetRealm + ".management";
+                if (Directory.Exists(management)) Directory.Delete(management, true);
+
+                File.Move(temp, targetRealm, true);
+
+                // settings: take everything from the real install except what makes this build different.
+                string gameConfigName = UseDevelopmentServer ? "game.dev.ini" : "game.ini";
+                string sourceGameConfig = Path.Combine(sourcePath, "game.ini");
+                string targetGameConfig = Path.Combine(targetPath, gameConfigName);
+
+                if (File.Exists(sourceGameConfig))
+                {
+                    string[] keepOwn = { "UseStableUI", "Token", "Username" };
+
+                    string[] own = File.Exists(targetGameConfig) ? File.ReadAllLines(targetGameConfig) : Array.Empty<string>();
+
+                    var lines = File.ReadAllLines(sourceGameConfig)
+                                    .Where(l => !keepOwn.Contains(l.Split('=')[0].Trim()))
+                                    .Concat(own.Where(l => keepOwn.Contains(l.Split('=')[0].Trim())))
+                                    .ToList();
+
+                    File.WriteAllLines(targetGameConfig, lines);
+                }
+
+                foreach (string name in new[] { "framework.ini", "input.json" })
+                {
+                    string source = Path.Combine(sourcePath, name);
+                    if (File.Exists(source)) copyShared(source, Path.Combine(targetPath, name));
+                }
+
+                // beatmap, skin and other stored files: link (or copy when linking is impossible) the ones that are missing.
+                string sourceFiles = Path.Combine(sourcePath, "files");
+                string targetFiles = Path.Combine(targetPath, "files");
+
+                if (Directory.Exists(sourceFiles))
+                {
+                    int linked = 0, copied = 0;
+
+                    foreach (string file in Directory.EnumerateFiles(sourceFiles, "*", SearchOption.AllDirectories))
+                    {
+                        string destination = Path.Combine(targetFiles, Path.GetRelativePath(sourceFiles, file));
+
+                        if (File.Exists(destination)) continue;
+
+                        Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+
+                        if (OperatingSystem.IsWindows() && CreateHardLink(destination, file, IntPtr.Zero))
+                            linked++;
+                        else
+                        {
+                            copyShared(file, destination);
+                            copied++;
+                        }
+                    }
+
+                    Logger.Log($"Mirrored real osu!lazer data: {linked} files linked, {copied} copied.", LoggingTarget.Runtime, LogLevel.Important);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Log($"Could not mirror the real osu!lazer data: {e}", LoggingTarget.Runtime, LogLevel.Important);
+            }
+        }
+
+        private static void copyShared(string source, string destination)
+        {
+            // open the source read-only and allow other processes to keep using it.
+            using (var input = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+            using (var output = new FileStream(destination, FileMode.Create, FileAccess.Write, FileShare.None))
+                input.CopyTo(output);
         }
 
         public override StableStorage? GetStorageForStableInstall()

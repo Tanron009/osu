@@ -1,13 +1,17 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System.IO;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Localisation;
 using osu.Game.Configuration;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Localisation;
+using osu.Game.Screens.Select.Stable;
+using osu.Framework.Platform;
 
 namespace osu.Game.Overlays.Settings.Sections.UserInterface
 {
@@ -16,8 +20,25 @@ namespace osu.Game.Overlays.Settings.Sections.UserInterface
         protected override LocalisableString Header => CommonStrings.General;
 
         [BackgroundDependencyLoader]
-        private void load(OsuConfigManager config)
+        private void load(OsuConfigManager config, Storage storage)
         {
+            string flagPath = storage.GetFullPath(StableUi.REAL_LAZER_FLAG);
+            var useRealLazer = new Bindable<bool>(File.Exists(flagPath));
+
+            useRealLazer.BindValueChanged(v =>
+            {
+                try
+                {
+                    if (v.NewValue)
+                        File.WriteAllText(flagPath, "on");
+                    else if (File.Exists(flagPath))
+                        File.Delete(flagPath);
+                }
+                catch
+                {
+                }
+            });
+
             Children = new Drawable[]
             {
                 new SettingsItemV2(new FormCheckBox
@@ -28,6 +49,15 @@ namespace osu.Game.Overlays.Settings.Sections.UserInterface
                 })
                 {
                     Keywords = [@"stable", @"legacy", @"classic", @"skin"],
+                },
+                new SettingsItemV2(new FormCheckBox
+                {
+                    Caption = "Use my real osu!lazer maps and settings",
+                    HintText = "On every start, copies your real osu!lazer database (maps, scores, skins list, keybinds) and settings into this build, then uses the copies. Your real osu! folder is only ever read, never changed, and anything you add, delete or change here stays here. Close the real osu! first. Restart after changing.",
+                    Current = useRealLazer
+                })
+                {
+                    Keywords = [@"real", @"lazer", @"maps", @"beatmaps", @"directory", @"keybinds", @"settings"],
                 },
                 new SettingsItemV2(new FormCheckBox
                 {

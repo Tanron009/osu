@@ -301,12 +301,20 @@ namespace osu.Game.Screens.Select.Stable
         {
             StableUi.HideLogo = false;
 
-            if (footerArtLayer != null && modeArt != null)
-            {
-                footerArtLayer.Remove(modeArt, false);
+            var layer = footerArtLayer;
+            var art = modeArt;
+            var stats = profileStats;
 
-                if (profileStats != null)
-                    footerArtLayer.Remove(profileStats, false);
+            if (layer != null && art != null)
+            {
+                // disposal happens off the update thread, so the removal has to be scheduled.
+                layer.Schedule(() =>
+                {
+                    layer.Remove(art, true);
+
+                    if (stats != null)
+                        layer.Remove(stats, true);
+                });
             }
 
             base.Dispose(isDisposing);

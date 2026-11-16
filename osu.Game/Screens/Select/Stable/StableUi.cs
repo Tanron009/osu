@@ -16,6 +16,9 @@ namespace osu.Game.Screens.Select.Stable
     /// </summary>
     public static class StableUi
     {
+        /// <summary>Marker file in the data folder: when present, startup mirrors maps and settings from the real osu!lazer folder (read-only source).</summary>
+        public const string REAL_LAZER_FLAG = @"use-real-lazer.flag";
+
         public static bool Enabled { get; set; }
 
         /// <summary>Current main menu parallax offset (screen pixels at 1080p): the logo and buttons drift towards the cursor.</summary>
