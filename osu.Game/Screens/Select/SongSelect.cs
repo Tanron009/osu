@@ -341,6 +341,8 @@ namespace osu.Game.Screens.Select
         /// <summary>
         /// osu!stable UI: keep lazer's song select logic alive but replace its visuals with the stable layout.
         /// </summary>
+        private StableSongSelectChrome? stableChrome;
+
         private void setupStableLayout()
         {
             // The lazer leaderboard wedge competes with the stable leaderboard for the shared leaderboard manager; never load it.
@@ -351,7 +353,7 @@ namespace osu.Game.Screens.Select
             FilterControl.Y = -4000;
             rightGradientBackground.Alpha = 0;
 
-            AddInternal(new StableSongSelectChrome(FilterControl));
+            AddInternal(stableChrome = new StableSongSelectChrome(FilterControl));
         }
 
         // Colour scheme for mod overlay is left as default (green) to match mods button.
@@ -696,7 +698,14 @@ namespace osu.Game.Screens.Select
         {
             base.OnEntering(e);
 
-            this.FadeIn();
+            if (StableUi.Enabled)
+            {
+                this.FadeIn(400, Easing.OutQuint);
+                stableChrome?.Transition(true, e.Last is not null);
+            }
+            else
+                this.FadeIn();
+
             onArrivingAtScreen();
         }
 
@@ -704,7 +713,8 @@ namespace osu.Game.Screens.Select
         {
             base.OnResuming(e);
 
-            this.FadeIn(fade_duration, Easing.OutQuint);
+            this.FadeIn(StableUi.Enabled ? 400 : fade_duration, Easing.OutQuint);
+            stableChrome?.Transition(true, false);
             onArrivingAtScreen();
 
             ensureGlobalBeatmapValid();
@@ -725,6 +735,7 @@ namespace osu.Game.Screens.Select
             carousel.VisuallyFocusSelected = true;
 
             this.FadeOut(fade_duration, Easing.OutQuint);
+            stableChrome?.Transition(false, false);
             onLeavingScreen();
 
             base.OnSuspending(e);
@@ -733,6 +744,7 @@ namespace osu.Game.Screens.Select
         public override bool OnExiting(ScreenExitEvent e)
         {
             this.FadeOut(fade_duration, Easing.OutQuint);
+            stableChrome?.Transition(false, true);
             onLeavingScreen();
 
             return base.OnExiting(e);

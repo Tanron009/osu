@@ -234,6 +234,31 @@ namespace osu.Game.Screens.Select.Stable
             InternalChild = new StableSpace { Children = content };
         }
 
+        /// <summary>
+        /// Fades the parts of the stable UI that live outside of the song select screen itself (the footer bar and the art on it).
+        /// </summary>
+        public void Transition(bool show, bool restoreFooterAfterwards)
+        {
+            double duration = show ? 450 : 250;
+            var easing = show ? Easing.OutQuint : Easing.OutQuad;
+
+            if (footerArtLayer != null)
+                footerArtLayer.FadeTo(show ? 1 : 0, duration, easing);
+
+            if (footer != null)
+            {
+                if (show)
+                    footer.FadeTo(1, duration, easing);
+                else if (restoreFooterAfterwards)
+                    footer.FadeOut(duration, easing).Then().FadeIn();
+                else
+                    footer.FadeOut(duration, easing);
+            }
+
+            if (show && InternalChild != null)
+                InternalChild.FadeInFromZero(duration, easing);
+        }
+
         private void updateProfile(APIUser user)
         {
             avatar.User = user;
