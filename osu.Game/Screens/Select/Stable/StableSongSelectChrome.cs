@@ -243,7 +243,25 @@ namespace osu.Game.Screens.Select.Stable
             var easing = show ? Easing.OutQuint : Easing.OutQuad;
 
             if (footerArtLayer != null)
+            {
                 footerArtLayer.FadeTo(show ? 1 : 0, duration, easing);
+
+                // leaving song select for good: take our art out of the shared footer once it has faded (we are on the update thread here).
+                if (!show && restoreFooterAfterwards && modeArt != null)
+                {
+                    var layer = footerArtLayer;
+                    var art = modeArt;
+                    var stats = profileStats;
+
+                    layer.Delay(duration + 50).Schedule(() =>
+                    {
+                        layer.Remove(art, false);
+
+                        if (stats != null)
+                            layer.Remove(stats, false);
+                    });
+                }
+            }
 
             if (footer != null)
             {
@@ -300,22 +318,6 @@ namespace osu.Game.Screens.Select.Stable
         protected override void Dispose(bool isDisposing)
         {
             StableUi.HideLogo = false;
-
-            var layer = footerArtLayer;
-            var art = modeArt;
-            var stats = profileStats;
-
-            if (layer != null && art != null)
-            {
-                // disposal happens off the update thread, so the removal has to be scheduled.
-                layer.Schedule(() =>
-                {
-                    layer.Remove(art, true);
-
-                    if (stats != null)
-                        layer.Remove(stats, true);
-                });
-            }
 
             base.Dispose(isDisposing);
         }
